@@ -66,14 +66,13 @@ def logout(request):
 @login_required
 def labelleMature(request):
     if request.is_ajax(): 
-        blah = "it worked"
-        return HttpResponse(blah)
         ajaxMode = str(request.POST.get('ajaxMode'))
         if ajaxMode == 'dataAjax':
             openAreas = Field.objects.filter(status='Open').filter(age='Mature').order_by("area").values_list("area", flat=True)
             allData = request.POST.getlist('allData[]')
             allKeys = request.POST.getlist('allKeys[]')
             i = 0
+            message = "never"
             while i < len(allData):
                 index = 0
                 counter = 0
@@ -86,7 +85,7 @@ def labelleMature(request):
                 fieldName = keyList[1]
                 scoutedStop = keyList[2]
                 scoutedItem = keyList[3]
-
+                
                 fieldAge = 'Mature'
                 # Next see if there is already a row with this date/field. If so, update with new field. If not, generate one
                 if LabelleData.objects.filter(Date=scoutDate).filter(Field=fieldName).filter(Stop=scoutedStop).exists():
@@ -97,9 +96,9 @@ def labelleMature(request):
                     created = True
                 if created == True:
                     LabelleData.objects.select_related().filter(Date=scoutDate).filter(Field=fieldName).filter(Age=fieldAge).update(Stop=scoutedStop)
-                    numRows = LabelleData.objects.count()
-                    obj.slug = numRows + 1
-                    obj.id = numRows + 1
+                    lastRow = int(LabelleData.objects.latest('id').id)
+                    obj.slug = lastRow + 1
+                    obj.id = lastRow + 1
                     if scoutedItem == 'Adults':
                         obj.Adult = currentData
                     elif scoutedItem == 'Eggs':
@@ -123,6 +122,7 @@ def labelleMature(request):
                     elif scoutedItem == 'Spidermites':
                         obj.SpiderMites = currentData
                     obj.save()
+                    message = str(lastRow)
                 else:
                     #only update existing row
                     if scoutedItem == 'Adults':
@@ -148,16 +148,19 @@ def labelleMature(request):
                     elif scoutedItem == 'Spidermites':
                         obj.SpiderMites = currentData
                     obj.save()
+                    
                 i += 1
-            message = "it worked"
+            
             return HttpResponse(message)
         if ajaxMode == 'imageAjax':
+            #Checking which stops have been completed in the selected field that day: first get field and date
             areaSelected = str(request.POST.get('selection1'))
             fieldSelected = str(request.POST.get('selection2'))
             date = str(request.POST.get('datepicker'))
             # TODO: Convert date format
             d1 = datetime.datetime.strptime(date, '%m/%d/%Y')
             datepicker = datetime.date.strftime(d1, "%Y-%m-%d")
+            #Now check the database for these filters and see which stops have data entered for them, and add done stops to an array
             stopsArray = ['NW','NE','C','SW','SE']
             doneArray = []
             i = 0
@@ -165,12 +168,13 @@ def labelleMature(request):
                 if LabelleData.objects.filter(Date=datepicker).filter(Field=fieldSelected).filter(Stop=stopsArray[i]).exists():
                     doneArray.extend(stopsArray[i])
                 i += 1
+            #Then go through the done array
             i = 0
             imageName = 'fieldStops'
+            imagesArray = ['fieldStops.svg']
             while i < len(doneArray):
-                imageName = imageName + '_' + doneArray[i]
+                imagesArray.extend(doneArray[i] + '.svg')
                 i += 1
-            imageName = imageName + '.svg'
             blah = 'blah'
             return HttpResponse(blah)
     openAreas = Field.objects.filter(status='Open').filter(age='Mature').order_by("area").values_list("area", flat=True).distinct()

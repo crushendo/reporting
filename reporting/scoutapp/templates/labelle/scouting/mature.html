@@ -148,7 +148,6 @@
                 }
             }
             var csrftoken = cookieValue;
-            var ajaxMode = 'dataAjax'
             $.ajaxSetup({
                 beforeSend: function(xhr, settings) {
                     if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
@@ -156,15 +155,16 @@
                     }
                 }
             });
-            
+            alert(selection1);
+            alert(selection2);
             $.ajax({
                 type: 'POST',
                 url: '/labelle/scouting/mature',
                 data: {
                     'selection1': selection1,
                     'selection2': selection2,
-                    'datepicker': datepicker,
-                    'ajaxMode': ajaxMode,
+                    'datepicker': selectedDate,
+                    'ajaxMode': ajaxMode
                 },
                 success: loadImage,
             }) 
@@ -172,9 +172,8 @@
     </script>
     
     <script>
-        function loadImage() {
-            alert(blah);
-            alert("imageName");
+        function loadImage(doneArray) {
+            alert(doneArray[0]);
         }
     
     </script>
