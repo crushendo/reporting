@@ -73,6 +73,7 @@ def labelleMature(request):
             allKeys = request.POST.getlist('allKeys[]')
             i = 0
             message = "never"
+            message = "not created"
             while i < len(allData):
                 index = 0
                 counter = 0
@@ -91,11 +92,17 @@ def labelleMature(request):
                 if LabelleData.objects.filter(Date=scoutDate).filter(Field=fieldName).filter(Stop=scoutedStop).exists():
                     obj = LabelleData.objects.get(Date=str(scoutDate), Field=str(fieldName), Stop=str(scoutedStop))
                     created = False
+                    
                 else:
                     obj = LabelleData(Date=str(scoutDate), Field=str(fieldName), Age=fieldAge, Stop=str(scoutedStop))
                     created = True
+                    message = "created"
+                    lastRow = int(LabelleData.objects.latest('id').id)
+                    obj.slug = lastRow + 1
+                    obj.id = lastRow + 1
+                    message = str(obj.id)
                 if created == True:
-                    LabelleData.objects.select_related().filter(Date=scoutDate).filter(Field=fieldName).filter(Age=fieldAge).update(Stop=scoutedStop)
+                    #LabelleData.objects.select_related().filter(Date=scoutDate).filter(Field=fieldName).filter(Age=fieldAge).update(Stop=scoutedStop)
                     lastRow = int(LabelleData.objects.latest('id').id)
                     obj.slug = lastRow + 1
                     obj.id = lastRow + 1
@@ -166,7 +173,10 @@ def labelleMature(request):
             i = 0
             while i < 5:
                 if LabelleData.objects.filter(Date=datepicker).filter(Field=fieldSelected).filter(Stop=stopsArray[i]).exists():
-                    doneArray.extend(stopsArray[i])
+                    if not doneArray:
+                        doneArray.append(stopsArray[i])
+                    else:
+                        doneArray.append(',' + stopsArray[i])
                 i += 1
             #Then go through the done array
             i = 0
@@ -176,7 +186,7 @@ def labelleMature(request):
                 imagesArray.extend(doneArray[i] + '.svg')
                 i += 1
             blah = 'blah'
-            return HttpResponse(blah)
+            return HttpResponse(doneArray)
     openAreas = Field.objects.filter(status='Open').filter(age='Mature').order_by("area").values_list("area", flat=True).distinct()
     fieldDict = defaultdict(list, flat=True)
     j=0

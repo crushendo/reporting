@@ -353,7 +353,12 @@
     </script> 
     
     <script type="text/javascript">
-        window.onload = function pastData(){
+        window.onload = function pageLoad(){
+        pastData();
+    }
+    </script>
+    <script>
+        function pastData(){
             var flag = "{{pastFlag}}"
             if(flag == 'True'){
                 document.getElementById("Adults").value = "{{pastAdults}}"
@@ -372,6 +377,7 @@
             }
         }
     </script>
+   
     
      <!-- Saves inputs to localStorage with unique keys, and submits all localStorage data to backend-->
     
