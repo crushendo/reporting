@@ -119,12 +119,10 @@
     
     <script>
         function selections(){
-            alert("starting")
             var selectedArea = document.getElementById("SelectArea").value
             sessionStorage.setItem("workingArea", selectedArea)
             var selectedField = document.getElementById("SelectField").value
             sessionStorage.setItem("workingField", selectedField)
-            alert("finishing")
         }
     </script>
     
@@ -244,11 +242,8 @@
                     '<rect x="450" y="325" fill="#fff" opacity="0" width="300" height="300" />' +
                 '</a>'
             htmlString +=  '</svg>' 
-            div.innerHTML = htmlString
-            
-                
+            div.innerHTML = htmlString      
         }
-    
     </script>
     
     <script type="text/javascript">

@@ -9,9 +9,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import FormView 
 from collections import defaultdict
 from django.shortcuts import get_object_or_404
-import json
+import json, os
 import datetime
 from scoutapp.forms import fieldForm, labelleMatureNE, labelleMatureNW, labelleMatureSE, labelleMatureSW, labelleMatureC
+from utils.scoutingReport import scoutingReport
 
 def report(request):
     if request.is_ajax():
@@ -20,9 +21,28 @@ def report(request):
         strLen = len(scoutingList)
         return HttpResponse(scoutingList, strLen)
     if request.method == "POST":
-        #if location == 'Labelle' && scoutedItem == 'Psyllids':
-            #labelle_report(startDate, endDate)
-        pi = 3.14
+        location = request.POST.get('location')
+        startDateInput = request.POST.get('startDate')
+        endDateInput = request.POST.get('endDate')
+        scoutedItem = request.POST.get('scoutedItem')
+        if location == 'Labelle' and scoutedItem == 'Psyllids':
+            reportScript = scoutingReport()
+            reportScript.sql2xl(startDateInput, endDateInput)
+            reportScript.update_data()
+            reportScript.create_graph()
+            #Problem here?
+            cwd = os.getcwd()
+            print('cwd')
+            print(cwd)
+            abs_path = cwd + '/scoutapp/utils/Scouting Report.xlsx'
+            print(abs_path)
+            if os.path.exists(abs_path):
+                print('cwd')
+                with open(abs_path, "r") as excel:
+                    data = excel.read()
+                    response = HttpResponse(data,content_type='application/vnd.ms-excel')
+                    response['Content-Disposition'] = 'attachment; filename=Psyllid_Report.xlsx'
+                    return response
     return render(request, 'report.html', { 
 
         })
@@ -273,86 +293,122 @@ def labelleMatureForm(request):
 @login_required
 def labelleYoung(request):
     if request.is_ajax(): 
-        allData = request.POST.getlist('allData[]')
-        allKeys = request.POST.getlist('allKeys[]')
-        i = 0
-        while i < len(allData):
-            index = 0
-            counter = 0
-            currentKey = allKeys[i]
-            currentData = allData[i]
-            # keyList is comma delineated and id's what data it holds. Separate out to find fields indicating
-            # where to place the data
-            keyList = currentKey.split(",")
-            scoutDate = keyList[0]
-            fieldName = keyList[1]
-            scoutedStop = keyList[2]
-            scoutedItem = keyList[3]
-            
-            fieldAge = 'Young'
-            # Next see if there is already a row with this date/field. If so, update with new field. If not, generate one
-            if LabelleData.objects.filter(Date=scoutDate).filter(Field=fieldName).filter(Stop=scoutedStop).exists():
-                obj = LabelleData.objects.get(Date=str(scoutDate), Field=str(fieldName), Stop=str(scoutedStop))
-                created = False
-            else:
-                obj = LabelleData(Date=str(scoutDate), Field=str(fieldName), Age=fieldAge, Stop=str(scoutedStop))
-                created = True
-            if created == True:
-                LabelleData.objects.select_related().filter(Date=scoutDate).filter(Field=fieldName).filter(Age=fieldAge).update(Stop=scoutedStop)
-                numRows = LabelleData.objects.count()
-                obj.slug = numRows + 1
-                obj.id = numRows + 1
-                if scoutedItem == 'Adults':
-                    obj.Adult = currentData
-                elif scoutedItem == 'Eggs':
-                    obj.Eggs = currentData
-                elif scoutedItem == 'Leafminer':
-                    obj.Leafminer = currentData
-                elif scoutedItem == 'ODLarva':
-                    obj.ODLarva = currentData
-                elif scoutedItem == 'ODEggs':
-                    obj.ODEggs = currentData
-                elif scoutedItem == 'Spidermites':
-                    obj.SpiderMites = currentData
-                elif scoutedItem == 'Tapped':
-                    obj.Tapped = currentData
-                elif scoutedItem == 'Flush':
-                    obj.Flush = currentData
-                elif scoutedItem == 'LM':
-                    obj.LM = currentData
-                elif scoutedItem == 'OD':
-                    obj.OD = currentData
-                elif scoutedItem == 'SM':
-                    obj.SM = currentData
-                obj.save()
-            else:
-                #only update existing row
-                if scoutedItem == 'Adults':
-                    obj.Adult = currentData
-                elif scoutedItem == 'Eggs':
-                    obj.Eggs = currentData
-                elif scoutedItem == 'Leafminer':
-                    obj.Leafminer = currentData
-                elif scoutedItem == 'ODLarva':
-                    obj.ODLarva = currentData
-                elif scoutedItem == 'ODEggs':
-                    obj.ODEggs = currentData
-                elif scoutedItem == 'Spidermites':
-                    obj.SpiderMites = currentData
-                elif scoutedItem == 'Tapped':
-                    obj.Tapped = currentData
-                elif scoutedItem == 'Flush':
-                    obj.Flush = currentData
-                elif scoutedItem == 'LM':
-                    obj.LM = currentData
-                elif scoutedItem == 'OD':
-                    obj.OD = currentData
-                elif scoutedItem == 'SM':
-                    obj.SM = currentData
-                obj.save()
-            i += 1
-        message = "it worked"
-        return HttpResponse(message)
+        ajaxMode = str(request.POST.get('ajaxMode'))
+        if ajaxMode == 'dataAjax':
+            openAreas = Field.objects.filter(status='Open').filter(age='Young').order_by("area").values_list("area", flat=True)
+            allData = request.POST.getlist('allData[]')
+            allKeys = request.POST.getlist('allKeys[]')
+            i = 0
+            message = "never"
+            message = "not created"
+            while i < len(allData):
+                index = 0
+                counter = 0
+                currentKey = allKeys[i]
+                currentData = allData[i]
+                # keyList is comma delineated and id's what data it holds. Separate out to find fields indicating
+                # where to place the data
+                keyList = currentKey.split(",")
+                scoutDate = keyList[0]
+                fieldName = keyList[1]
+                scoutedStop = keyList[2]
+                scoutedItem = keyList[3]
+                fieldAge = 'Young'
+                # Next see if there is already a row with this date/field. If so, update with new field. If not, generate one
+                if LabelleData.objects.filter(Date=scoutDate).filter(Field=fieldName).filter(Stop=scoutedStop).exists():
+                    obj = LabelleData.objects.get(Date=str(scoutDate), Field=str(fieldName), Stop=str(scoutedStop))
+                    created = False
+                else:
+                    obj = LabelleData(Date=str(scoutDate), Field=str(fieldName), Age=fieldAge, Stop=str(scoutedStop))
+                    created = True
+                    message = "created"
+                    lastRow = int(LabelleData.objects.latest('id').id)
+                    obj.slug = lastRow + 1
+                    obj.id = lastRow + 1
+                    message = str(obj.id)
+                if created == True:
+                    lastRow = int(LabelleData.objects.latest('id').id)
+                    obj.slug = lastRow + 1
+                    obj.id = lastRow + 1
+                    if scoutedItem == 'Adults':
+                        obj.Adult = currentData
+                    elif scoutedItem == 'Eggs':
+                        obj.Eggs = currentData
+                    elif scoutedItem == 'Tapped':
+                        obj.Tapped = currentData
+                    elif scoutedItem == 'Flush':
+                        obj.Flush = currentData
+                    elif scoutedItem == 'LM':
+                        obj.LM = currentData
+                    elif scoutedItem == 'OD':
+                        obj.OD = currentData
+                    elif scoutedItem == 'SM':
+                        obj.SM = currentData
+                    elif scoutedItem == 'Leafminer':
+                        obj.Leafminer = currentData
+                    elif scoutedItem == 'ODLarva':
+                        obj.ODLarva = currentData
+                    elif scoutedItem == 'ODEggs':
+                        obj.ODEggs = currentData
+                    elif scoutedItem == 'Spidermites':
+                        obj.SpiderMites = currentData
+                    obj.save()
+                    message = str(lastRow)
+                else:
+                    #only update existing row
+                    if scoutedItem == 'Adults':
+                        obj.Adult = currentData
+                    elif scoutedItem == 'Eggs':
+                        obj.Eggs = currentData
+                    elif scoutedItem == 'Tapped':
+                        obj.Tapped = currentData
+                    elif scoutedItem == 'Flush':
+                        obj.Flush = currentData
+                    elif scoutedItem == 'LM':
+                        obj.LM = currentData
+                    elif scoutedItem == 'OD':
+                        obj.OD = currentData
+                    elif scoutedItem == 'SM':
+                        obj.SM = currentData
+                    elif scoutedItem == 'Leafminer':
+                        obj.Leafminer = currentData
+                    elif scoutedItem == 'ODLarva':
+                        obj.ODLarva = currentData
+                    elif scoutedItem == 'ODEggs':
+                        obj.ODEggs = currentData
+                    elif scoutedItem == 'Spidermites':
+                        obj.SpiderMites = currentData
+                    obj.save() 
+                i += 1
+            return HttpResponse(message)
+        if ajaxMode == 'imageAjax':
+            #Checking which stops have been completed in the selected field that day: first get field and date
+            areaSelected = str(request.POST.get('selection1'))
+            fieldSelected = str(request.POST.get('selection2'))
+            date = str(request.POST.get('datepicker'))
+            # TODO: Convert date format
+            d1 = datetime.datetime.strptime(date, '%m/%d/%Y')
+            datepicker = datetime.date.strftime(d1, "%Y-%m-%d")
+            #Now check the database for these filters and see which stops have data entered for them, and add done stops to an array
+            stopsArray = ['NW','NE','C','SW','SE']
+            doneArray = []
+            i = 0
+            while i < 5:
+                if LabelleData.objects.filter(Date=datepicker).filter(Field=fieldSelected).filter(Stop=stopsArray[i]).exists():
+                    if not doneArray:
+                        doneArray.append(stopsArray[i])
+                    else:
+                        doneArray.append(',' + stopsArray[i])
+                i += 1
+            #Then go through the done array
+            i = 0
+            imageName = 'fieldStops'
+            imagesArray = ['fieldStops.svg']
+            while i < len(doneArray):
+                imagesArray.extend(doneArray[i] + '.svg')
+                i += 1
+            blah = 'blah'
+            return HttpResponse(doneArray)
     openAreas = Field.objects.filter(status='Open').filter(age='Young').order_by("area").values_list("area", flat=True).distinct()
     fieldDict = defaultdict(list, flat=True)
     j=0

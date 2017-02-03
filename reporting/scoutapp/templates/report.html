@@ -20,7 +20,7 @@
     <h5 style="margin-bottom:0.5vh">
             &nbsp; Location:
     </h5>
-    <select name="location" id="location" onchange="alert('blah');fu()">
+    <select name="location" id="location" onchange="fu()">
         <option value="default">Select a location</option>
         <option value="Labelle">Labelle</option>
     </select>
@@ -78,7 +78,6 @@
             }
         });
         // Send all data and keys in localStorage to backend via AJAX
-        alert("jnen")
         $.ajax({
             type: 'POST',
             url: '/report',
@@ -91,8 +90,6 @@
 </script>
 </form>
 
-
-
 <script type="text/javascript">
     // Runs on successful AJAX request and Django processing of request
     // Redirects page
@@ -100,10 +97,6 @@
         document.getElementById("scoutedItem").options.length = 0;
         var select = document.getElementById('scoutedItem');
         select.options[select.options.length] = new Option("Make a selection", "Make a selection");
-        alert(typeof(scoutingList))
-        alert(scoutingList)
-        alert('strLen = ' + strLen)
-        
         if(scoutingList.indexOf(',') != -1){
             var scoutingArray = scoutingList.split(',')
             var length = scoutingArray.length

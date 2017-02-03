@@ -139,6 +139,7 @@
                 }
             }
             var csrftoken = cookieValue;
+            var ajaxMode = 'dataAjax'
             $.ajaxSetup({
                 beforeSend: function(xhr, settings) {
                     if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
@@ -152,7 +153,8 @@
                 url: '/labelle/scouting/young',
                 data: {
                     'allData[]': allData,
-                    'allKeys[]': allKeys
+                    'allKeys[]': allKeys,
+                    'ajaxMode': ajaxMode,
                 },
                 success: checkFunction,
             }) 
