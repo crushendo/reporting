@@ -90,9 +90,10 @@
     </h5>
     
     <div id="imageDiv">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1000" xmlns:xlink="http://www.w3.org/1999/xlink"  id="SelectStop" preserveAspectRatio="xMidYmin meet" style="margin-left:0%"> 
-        <image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/fieldStopsBase.svg" >
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1200 1000" xmlns:xlink="http://www.w3.org/1999/xlink"  id="SelectStop" preserveAspectRatio="xMidYmin meet" style="margin-left:0%"> 
+        <image type="image/svg+xml" id="areaImage" width="1200" height="1500" data="../../../static/images/fieldStopsBase.png" >
         </image>
+        <img src="../../../static/images/fieldStopsBase.svg">
         <a onclick="return NWSubmit();">
 		  <rect x="135" y="10" fill="#fff" opacity="0" width="300" height="300" />
         </a>
@@ -203,27 +204,27 @@
             var div = document.getElementById("imageDiv")
             htmlString =
                 '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1000" xmlns:xlink="http://www.w3.org/1999/xlink"  id="SelectStop" preserveAspectRatio="xMidYmin meet" style="margin-left:0%">' +
-                    '<image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/fieldStopsBase.svg" > </image>'
+                    '<image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/fieldStopsBase.png" style="z-index:1;"> </image>'
             
             if(doneArray.includes('NE')){
                 htmlString += 
-                    '<image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/NE.svg" > </image>'
+                    '<image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/NE.png" > </image>'
             }
             if(doneArray.includes('NW')){
                 htmlString +=   
-                    '<image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/NW.svg" > </image>' 
+                    '<image width="1200" height="1500" xlink:href="../../../static/img/NW.png" style="z-index:2;"> </image>' 
             }
             if(doneArray.includes('C')){
                 htmlString += 
-                    '<image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/C.svg" > </image>' 
+                    '<image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/C.png" > </image>' 
             }
             if(doneArray.includes('SE')){
                 htmlString += 
-                    '<image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/SE.svg" > </image>' 
+                    '<image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/SE.png" > </image>' 
             }
             if(doneArray.includes('SW')){
                 htmlString += 
-                    '<image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/SW.svg" > </image>'
+                    '<image id="areaImage" width="1200" height="1500" xlink:href="../../../static/img/SW.png" > </image>'
             }
             htmlString += 
                 '<a onclick="return NWSubmit();">' +
@@ -242,7 +243,9 @@
                     '<rect x="450" y="325" fill="#fff" opacity="0" width="300" height="300" />' +
                 '</a>'
             htmlString +=  '</svg>' 
-            div.innerHTML = htmlString      
+            div.innerHTML = htmlString
+            
+                
         }
     </script>
     

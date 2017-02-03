@@ -50,7 +50,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="266.03049"
+     inkscape:cx="120.03049"
      inkscape:cy="820.98736"
      inkscape:document-units="px"
      inkscape:current-layer="g3368"
@@ -68,7 +68,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -199,18 +199,19 @@
       <g
          style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:40px;line-height:125%;font-family:'.HeitiUI K';-inkscape-font-specification:'.HeitiUI K, Thin';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          id="text5751">
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:96.6137496px;line-height:125%;font-family:'.HeitiUI TC';-inkscape-font-specification:'.HeitiUI TC, Thin';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           x="101.69022"
-           y="302.62094"
-           id="text4387"
-           sodipodi:linespacing="125%"
-           transform="scale(0.85411591,1.1708013)"><tspan
-             sodipodi:role="line"
-             id="tspan4389"
-             x="101.69022"
-             y="302.62094">NW</tspan></text>
+        <g
+           transform="scale(0.85411591,1.1708013)"
+           style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:96.61374664px;line-height:125%;font-family:'.HeitiUI TC';-inkscape-font-specification:'.HeitiUI TC, Thin';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           id="text4387">
+          <path
+             d="m 110.57869,296.7275 0,-69.27205 0.86952,0 47.34074,54.58676 0,-54.58676 5.99005,0 0,69.27205 -0.86952,0 -47.0509,-53.91047 0,53.91047 -6.27989,0 z"
+             style=""
+             id="path4165" />
+          <path
+             d="m 178.23095,227.45545 6.08667,0 14.58868,53.52401 q 5.02391,-13.04285 10.33767,-26.66539 5.31375,-13.71915 10.33767,-26.85862 l 0.57968,0 20.48211,53.52401 14.87852,-53.52401 6.08667,0 -19.90243,71.0111 -0.57969,0 -21.25502,-55.84275 -21.64148,55.84275 -0.48307,0 -19.51598,-71.0111 z"
+             style=""
+             id="path4167" />
+        </g>
       </g>
       <rect
          style="fill:#1a1a1a;fill-opacity:0"

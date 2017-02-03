@@ -39,7 +39,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8284271"
-     inkscape:cx="366.36311"
+     inkscape:cx="314.74431"
      inkscape:cy="654.54224"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -57,7 +57,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -191,17 +191,14 @@
        height="221"
        x="263"
        y="223.8622" />
-    <text
-       xml:space="preserve"
+    <g
+       transform="scale(1.0228148,0.9776941)"
        style="font-style:normal;font-variant:normal;font-weight:200;font-stretch:normal;font-size:139.01153564px;line-height:125%;font-family:'.HeitiUI TC';-inkscape-font-specification:'.HeitiUI TC, Ultra-Light';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="307.57178"
-       y="396.50363"
-       id="text4428"
-       sodipodi:linespacing="125%"
-       transform="scale(1.0228148,0.9776941)"><tspan
-         sodipodi:role="line"
-         id="tspan4430"
-         x="307.57178"
-         y="396.50363">C</tspan></text>
+       id="text4428">
+      <path
+         d="m 407.24305,309.48241 q -7.08959,-8.20168 -16.68139,-12.51104 -9.45278,-4.30936 -20.43469,-4.30936 -19.32261,0 -33.08475,13.34511 -6.81156,6.67256 -10.14784,15.15226 -3.33628,8.34069 -3.33628,18.0715 0,19.04458 13.2061,31.83364 13.76214,12.92807 33.91881,12.92807 10.8429,0 20.15668,-3.89232 9.31377,-4.03133 16.54237,-12.23301 l 5.14343,4.03133 q -7.50663,9.17476 -18.48854,13.90115 -10.8429,4.58738 -23.90998,4.58738 -11.67697,0 -21.54679,-3.89232 -9.86982,-3.89232 -17.09842,-10.8429 -7.08959,-6.95058 -11.12092,-16.40336 -4.03134,-9.5918 -4.03134,-20.85173 0,-11.53796 4.30936,-21.12975 4.44837,-9.73081 11.67697,-16.68139 7.36761,-6.95057 16.95941,-10.8429 9.59179,-3.89232 20.01766,-3.89232 13.76214,0 24.74405,5.28244 10.98191,5.28244 18.48854,14.4572 l -5.28244,3.89232 z"
+         style=""
+         id="path4161" />
+    </g>
   </g>
 </svg>

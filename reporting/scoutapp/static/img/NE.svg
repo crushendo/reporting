@@ -17,7 +17,10 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="NE.svg"
-   enable-background="new">
+   enable-background="new"
+   inkscape:export-filename="/Users/Ryan/projects18/reporting/scoutapp/static/img/NE.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4">
     <filter
@@ -47,13 +50,13 @@
      pagecolor="#ffa3ff"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.63137255"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.70710678"
-     inkscape:cx="364.02039"
+     inkscape:cx="271.3894"
      inkscape:cy="724.00251"
      inkscape:document-units="px"
-     inkscape:current-layer="g3368"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1280"
      inkscape:window-height="751"
@@ -196,17 +199,18 @@
          d="m 262.13203,747.23104 0,-105.36727 -106.06601,0 -106.06602,0 0,-114.5513 0,-114.5513 106.06602,0 106.06601,0 0,-105.35891 0,-105.35891 113.8442,0 113.84419,0 0,105.35891 0,105.35891 105.35891,0 105.35891,0 0,114.5513 0,114.5513 -104.64274,0 -104.64275,0 -0.36261,105.00536 -0.36262,105.00536 -114.19774,0.36191 -114.19775,0.36192 0,-105.36728 z m 220.61732,-219.91857 0,-106.06601 -106.06602,0 -106.06601,0 0,106.06601 0,106.06602 106.06601,0 106.06602,0 0,-106.06602 z"
          style="fill:#ffffff;fill-opacity:0;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:200;font-stretch:normal;font-size:116.83875169px;line-height:125%;font-family:'.HeitiUI TC';-inkscape-font-specification:'.HeitiUI TC, Ultra-Light';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
-       x="584.04431"
-       y="152.66257"
-       id="text4424"
-       sodipodi:linespacing="125%"
-       transform="scale(0.89445829,1.1179951)"><tspan
-         sodipodi:role="line"
-         id="tspan4426"
-         x="584.04431"
-         y="152.66257">NE</tspan></text>
+    <g
+       transform="scale(0.89445829,1.1179951)"
+       style="font-style:normal;font-variant:normal;font-weight:200;font-stretch:normal;font-size:116.83875275px;line-height:125%;font-family:'.HeitiUI TC';-inkscape-font-specification:'.HeitiUI TC, Ultra-Light';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="text4424">
+      <path
+         d="m 660.80737,145.65224 -0.70103,-0.23368 0.11684,0 0,-0.35051 0.58419,0.58419 z m -65.07918,-83.890222 -0.11684,0 0,0.467355 -0.5842,-0.701033 0.70104,0.233678 z m -0.11684,83.656542 0,-83.189187 59.12041,68.233827 0,-68.701182 5.49142,0 0,83.306032 -58.88673,-67.532801 0,67.883311 -5.7251,0 z"
+         style=""
+         id="path4162" />
+      <path
+         d="m 682.09941,61.762018 46.50182,0 0,5.958776 -40.89356,0 0,29.560204 40.42621,0 0,5.725102 -40.42621,0 0,36.45369 40.42621,0 0,5.95877 -46.03447,0 0,-83.656542 z"
+         style=""
+         id="path4164" />
+    </g>
   </g>
 </svg>

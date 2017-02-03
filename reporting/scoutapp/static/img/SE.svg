@@ -50,7 +50,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="492.27763"
+     inkscape:cx="346.27763"
      inkscape:cy="603.10714"
      inkscape:document-units="px"
      inkscape:current-layer="g3368"
@@ -68,7 +68,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -198,18 +198,19 @@
       <g
          style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:40px;line-height:125%;font-family:'.HeitiUI K';-inkscape-font-specification:'.HeitiUI K, Thin';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          id="text5751">
-        <text
-           xml:space="preserve"
+        <g
+           transform="scale(0.88803093,1.1260869)"
            style="font-style:normal;font-variant:normal;font-weight:200;font-stretch:normal;font-size:117.35289001px;line-height:125%;font-family:'.HeitiUI TC';-inkscape-font-specification:'.HeitiUI TC, Ultra-Light';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-           x="608.34778"
-           y="707.276"
-           id="text4436"
-           sodipodi:linespacing="125%"
-           transform="scale(0.88803093,1.1260869)"><tspan
-             sodipodi:role="line"
-             id="tspan4438"
-             x="608.34778"
-             y="707.276">SE</tspan></text>
+           id="text4436">
+          <path
+             d="m 616.09307,682.74925 q 3.99,6.57176 8.80147,10.2097 4.81146,3.52059 9.97499,3.52059 7.15853,0 12.32205,-4.69412 l 0,0.11735 q 2.69912,-2.34706 3.99,-5.28088 1.29088,-2.93382 1.29088,-6.33705 0,-5.04618 -4.57676,-10.67912 -4.57676,-5.63294 -13.26087,-12.32205 -4.34206,-3.28588 -7.62794,-5.86764 -3.16853,-2.69912 -4.57676,-4.34206 -5.86765,-6.57176 -5.86765,-14.43441 0,-4.10735 1.40824,-7.39323 1.40823,-3.28588 4.10735,-5.985 5.51558,-5.39823 14.08234,-5.39823 6.57177,0 11.26588,3.05118 4.69412,3.05117 9.38823,9.38823 -1.29088,1.17353 -2.46441,1.995 -1.05617,0.82147 -2.2297,1.76029 -3.16853,-4.2247 -7.04118,-7.04117 -3.75529,-2.81647 -9.15352,-2.81647 -5.985,0 -9.74029,3.52058 -3.75529,3.40324 -3.75529,8.80147 0,2.69912 0.70411,5.04617 0.82147,2.22971 2.69912,4.22471 1.52559,1.76029 4.81147,4.57676 3.28588,2.81647 8.68411,6.92382 10.09235,7.39323 14.78647,13.61294 4.69411,6.2197 4.69411,13.26087 0,4.57677 -1.64294,8.33206 -1.64294,3.75529 -5.28088,7.15852 -6.80647,6.45441 -15.72529,6.45441 -7.97999,0 -14.1997,-3.98999 -6.10235,-4.10736 -10.56176,-12.55676 l 4.69412,-2.81647 z"
+             style=""
+             id="path4163" />
+          <path
+             d="m 678.41295,615.97545 46.70645,0 0,5.985 -41.07351,0 0,29.69028 40.6041,0 0,5.75029 -40.6041,0 0,36.6141 40.6041,0 0,5.985 -46.23704,0 0,-84.02467 z"
+             style=""
+             id="path4165" />
+        </g>
       </g>
     </g>
   </g>

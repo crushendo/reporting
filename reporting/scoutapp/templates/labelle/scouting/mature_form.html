@@ -155,7 +155,7 @@
             });
             
             // Send all data and keys in localStorage to backend via AJAX
-            alert(allKeys[0])
+            //alert(allKeys[0])
             $.ajax({
                 type: 'POST',
                 url: '/labelle/scouting/mature',
@@ -175,7 +175,7 @@
         // Redirects page
         function checkFunction(message) {
             // TODO: now clear localStorage, not earlier
-            alert(message);
+            //alert(message);
             localStorage.clear();
             window.location = "/labelle/scouting/mature";
         }
