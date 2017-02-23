@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^accounts/logout/$', views.logout), 
     url(r'^accounts/loggedin/$', views.loggedin), 
     url(r'^accounts/invalid/$', views.invalid_login), 
-    
+    url(r'^labelle/wps$', TemplateView.as_view(template_name='labelle/wps.html'), name='wps'), 
     url(r'^report$', views.report,name='report'),
     url(r'^about/$', TemplateView.as_view(template_name='about.html'), name='about'), 
     url(r'^labelle/scouting/mature$', views.labelleMature,name='mature'),

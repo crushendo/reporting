@@ -1,9 +1,69 @@
 {% extends 'base.html' %} 
 {% block title %} Homepage - {{ block.super }}{% endblock %} 
+{% block header %}
 
+<style>
+#slider {
+    opacity:1;
+    transition: opacity 1s; 
+}
+</style>
+<style>
+#slider.fadeOut {
+    opacity:0;
+}
+</style>
+<style>
+.slider_container {
+  position: relative;
+}
+</style>
+<style>
+.slider_container img {
+  position: relative;
+  width: 100%;
+}
+</style>
+<style>
+.slider_container .border_box {
+  position: absolute;
+  border: 3px solid #fff;
+  left: 5px;
+  right: 5px;
+  top: 5px;
+  bottom: 5px;
+}
+</style>
+
+{% endblock %} 
 {% block content %}
 
 <p style="text-align:center"> Welcome to DUDA Scouter (Beta)!<p>
 
+<div class="slider_container" style="max-width:70vw">
+    <img id="slider" style="width:70vw;margin-left:15vw" src="../../../static/img/citrus-scouting.jpg">
+    <div class="border_box" style="width:69vw;margin-left:15vw"></div>
+</div>
+
+<script>
+var imgArray = [
+    "../../../static/img/citrus-scouting.jpg",
+    "../../../static/img/stock-oranges.jpg",
+    "../../../static/img/orange-juice.jpg"],
+    curIndex = 0;
+    imgDuration = 10000;
+
+function slideShow() {
+    document.getElementById('slider').className += "fadeOut";
+    setTimeout(function() {
+        document.getElementById('slider').src = imgArray[curIndex];
+        document.getElementById('slider').className = "";
+    },1000);
+    curIndex++;
+    if (curIndex == imgArray.length) { curIndex = 0; }
+    setTimeout(slideShow, imgDuration);
+}
+slideShow();
+</script>
 
 {% endblock %}

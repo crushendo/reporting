@@ -14,6 +14,7 @@ import datetime
 from scoutapp.forms import fieldForm, labelleMatureNE, labelleMatureNW, labelleMatureSE, labelleMatureSW, labelleMatureC
 from utils.scoutingReport import scoutingReport
 
+@login_required
 def report(request):
     if request.is_ajax():
         selectedLocation = request.POST.get('selectedLocation')
@@ -89,7 +90,8 @@ def labelleMature(request):
         ajaxMode = str(request.POST.get('ajaxMode'))
         if ajaxMode == 'dataAjax':
             openAreas = Field.objects.filter(status='Open').filter(age='Mature').order_by("area").values_list("area", flat=True)
-            allData = request.POST.getlist('allData[]')
+   
+         allData = request.POST.getlist('allData[]')
             allKeys = request.POST.getlist('allKeys[]')
             i = 0
             message = "never"
