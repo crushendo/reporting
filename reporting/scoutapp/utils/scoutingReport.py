@@ -22,7 +22,7 @@ class scoutingReport():
         print(cwd)
 
         # Establishing a connection to the mySQL database
-        cnx = mysql.connector.connect(user='root', password='',
+        cnx = mysql.connector.connect(user='root', password='dudar00t2017',
                                       host='127.0.0.1',
                                       database='scouter',
                                       charset = 'utf8',
@@ -32,7 +32,8 @@ class scoutingReport():
         mature_fields = cnx.cursor(dictionary=True)
         query = ("SELECT * FROM scoutapp_field WHERE age = 'Mature'")
         mature_fields.execute(query)
-        report_path = "scoutapp/utils/Scouting Report.xlsx"
+	
+        report_path = "/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report.xlsx"
         report_wb = openpyxl.load_workbook(report_path)
         mature_sheet = report_wb.get_sheet_by_name('Mature Data')
 
@@ -194,7 +195,7 @@ class scoutingReport():
         report_wb.save(report_path)
 
     def update_data(self):
-        report_path = "scoutapp/utils/Scouting Report.xlsx"
+        report_path = "/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report.xlsx"
         report_wb = openpyxl.load_workbook(report_path)
         mature_graph = report_wb.get_sheet_by_name('Mature Graph')
 
@@ -226,7 +227,7 @@ class scoutingReport():
 
 
     def create_graph(self):
-        report_path = "scoutapp/utils/Scouting Report.xlsx"
+        report_path = "/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report.xlsx"
         report_wb = openpyxl.load_workbook(report_path)
         mature_graph = report_wb.get_sheet_by_name('Mature Graph')
         last_row = int(mature_graph.max_row)

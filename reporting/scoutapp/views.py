@@ -35,7 +35,7 @@ def report(request):
             cwd = os.getcwd()
             print('cwd')
             print(cwd)
-            abs_path = cwd + '/scoutapp/utils/Scouting Report.xlsx'
+            abs_path = '/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report.xlsx'
             print(abs_path)
             if os.path.exists(abs_path):
                 print('cwd')
@@ -90,8 +90,7 @@ def labelleMature(request):
         ajaxMode = str(request.POST.get('ajaxMode'))
         if ajaxMode == 'dataAjax':
             openAreas = Field.objects.filter(status='Open').filter(age='Mature').order_by("area").values_list("area", flat=True)
-   
-         allData = request.POST.getlist('allData[]')
+            allData = request.POST.getlist('allData[]')
             allKeys = request.POST.getlist('allKeys[]')
             i = 0
             message = "never"
