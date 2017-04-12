@@ -19,8 +19,11 @@ def report(request):
     if request.is_ajax():
         selectedLocation = request.POST.get('selectedLocation')
         scoutingList = list(scoutingAreas.objects.filter(location=selectedLocation).order_by("scoutedItem").values_list("scoutedItem", flat=True))
-        strLen = len(scoutingList)
-        return HttpResponse(scoutingList, strLen)
+        scoutingListStr = scoutingList[0]
+	for i in scoutingList[1:]:
+	    scoutingListStr = scoutingListStr + "," + i
+	strLen = len(scoutingList)
+	return HttpResponse(scoutingListStr, strLen)
     if request.method == "POST":
         location = request.POST.get('location')
         startDateInput = request.POST.get('startDate')
@@ -35,14 +38,14 @@ def report(request):
             cwd = os.getcwd()
             print('cwd')
             print(cwd)
-            abs_path = '/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report.xlsx'
+            abs_path = '/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report-Temp.xlsx'
             print(abs_path)
             if os.path.exists(abs_path):
                 print('cwd')
                 with open(abs_path, "r") as excel:
                     data = excel.read()
                     response = HttpResponse(data,content_type='application/vnd.ms-excel')
-                    response['Content-Disposition'] = 'attachment; filename=Psyllid_Report.xlsx'
+                    response['Content-Disposition'] = 'attachment; filename=DUDA_Scouting_Report.xlsx'
                     return response
     return render(request, 'report.html', { 
 

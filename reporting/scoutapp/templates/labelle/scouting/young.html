@@ -87,6 +87,7 @@
         <p> &nbsp;&nbsp;&nbsp;&nbsp; <select id="SelectField" name="SelectField" onchange="getSelection2()"> 
             <option> Select Field </option>
         </select> </p>
+	<input type="hidden" name="formStop" id="formStop" value="">
     </h5>
     
     <div id="imageDiv">
@@ -274,12 +275,6 @@
                 alert("You cannot select a date that is in the future.");
                 return false;
             }
-            var input = document.createElement("input");
-            input.setAttribute("type", "hidden");
-            input.setAttribute("name", "formStop");
-            input.setAttribute("id", "formStop");
-            //append to form element that you want 
-            document.getElementById("SelectStop").appendChild(input);
             document.getElementById("formStop").value = 'NW';
             var formStop = "NW";
             selections();
@@ -314,12 +309,6 @@
                 alert("You cannot select a date that is in the future.");
                 return false;
             }
-            var input = document.createElement("input");
-            input.setAttribute("type", "hidden");
-            input.setAttribute("name", "formStop");
-            input.setAttribute("id", "formStop");
-            //append to form element that you want 
-            document.getElementById("SelectStop").appendChild(input);
             document.getElementById("formStop").value = 'NE';
             var formStop = "NE";
             selections();
@@ -354,12 +343,6 @@
                 alert("You cannot select a date that is in the future.");
                 return false;
             }
-            var input = document.createElement("input");
-            input.setAttribute("type", "hidden");
-            input.setAttribute("name", "formStop");
-            input.setAttribute("id", "formStop");
-            //append to form element that you want 
-            document.getElementById("SelectStop").appendChild(input);
             document.getElementById("formStop").value = 'SW';
             var formStop = "SW";
             selections();
@@ -394,12 +377,6 @@
                 alert("You cannot select a date that is in the future.");
                 return false;
             }
-            var input = document.createElement("input");
-            input.setAttribute("type", "hidden");
-            input.setAttribute("name", "formStop");
-            input.setAttribute("id", "formStop");
-            //append to form element that you want 
-            document.getElementById("SelectStop").appendChild(input);
             document.getElementById("formStop").value = 'SE';
             var formStop = "SE";
             selections();
@@ -434,12 +411,6 @@
                 alert("You cannot select a date that is in the future.");
                 return false;
             }
-            var input = document.createElement("input");
-            input.setAttribute("type", "hidden");
-            input.setAttribute("name", "formStop");
-            input.setAttribute("id", "formStop");
-            //append to form element that you want 
-            document.getElementById("SelectStop").appendChild(input);
             document.getElementById("formStop").value = 'C';
             var formStop = "C";
             selections();

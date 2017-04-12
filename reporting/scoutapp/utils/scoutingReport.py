@@ -192,10 +192,10 @@ class scoutingReport():
 
                 i += 1
 
-        report_wb.save(report_path)
+        report_wb.save('/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report-Temp.xlsx')
 
     def update_data(self):
-        report_path = "/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report.xlsx"
+        report_path = "/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report-Temp.xlsx"
         report_wb = openpyxl.load_workbook(report_path)
         mature_graph = report_wb.get_sheet_by_name('Mature Graph')
 
@@ -227,7 +227,7 @@ class scoutingReport():
 
 
     def create_graph(self):
-        report_path = "/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report.xlsx"
+        report_path = "/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report-Temp.xlsx"
         report_wb = openpyxl.load_workbook(report_path)
         mature_graph = report_wb.get_sheet_by_name('Mature Graph')
         last_row = int(mature_graph.max_row)
