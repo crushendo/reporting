@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -20,12 +21,21 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '3c9a1f^((ay42y&kjio)%i(!tg&%$(m@gdm-1x=k*0w4meq19k'
+with open('/home/lbadmin/projects18/reporting/reporting/secret_key.txt') as f:
+    SECRET_KEY = f.read().strip()
+
+#SECURE_CONTENT_TYPE_NOSNIFF = True
+
+#SECURE_BROWSER_XSS_FILTER = True
+
+#SESSION_COOKIE_SECURE = True
+
+#CSRF_COOKIE_SECURE = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.scouter.duda.com']
 
 
 # Application definition
@@ -38,6 +48,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'prodready'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -50,6 +61,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
+
+#CSRF_COOKIE_HTTPONLY = True
+
+#X_FRAME_OPTIONS = DENY
 
 ROOT_URLCONF = 'reporting.urls'
 
@@ -82,12 +97,17 @@ WSGI_APPLICATION = 'reporting.wsgi.application'
 #        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #    }
 #}
+
+with open('/home/lbadmin/projects18/reporting/reporting/pwd.txt') as f:
+    pwd = f.read().strip()
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'scouter',
 	'USER': 'root',
-        'PASSWORD': 'dudar00t2017',
+        'PASSWORD': pwd,
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     },
@@ -118,3 +138,22 @@ TEMPLATE_DIRS = (
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+#LOGGING = {
+#    'version': 1,
+#    'disable_existing_loggers': False,
+#    'handlers': {
+#        'file': {
+#            'level': 'DEBUG',
+#            'class': 'logging.FileHandler',
+#            'filename': 'debug.log',
+#        },
+#    },
+#    'loggers': {
+#        'django': {
+#            'handlers': ['file'],
+#            'level': 'DEBUG',
+#            'propagate': True,
+#        },
+#    },
+#}
