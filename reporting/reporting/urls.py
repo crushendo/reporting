@@ -20,5 +20,6 @@ urlpatterns = [
     url(r'^labelle/scouting/young$', views.labelleYoung,name='young'),
     url(r'^labelle/scouting/mature_form$', views.labelleMatureForm,name='mature_form'),
     url(r'^labelle/scouting/young_form$', views.labelleYoungForm,name='young_form'),
+    url(r'^robots\.txt$', TemplateView.as_view(template_name='robots.txt', content_type='text/plain'), name='robots.txt'),
     
 ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
