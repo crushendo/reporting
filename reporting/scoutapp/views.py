@@ -32,12 +32,15 @@ def report(request):
         if location == 'Labelle' and scoutedItem == 'Psyllids':
             reportScript = scoutingReport()
             reportScript.sql2xl(startDateInput, endDateInput)
-            reportScript.update_data()
+            reportScript.other_pests()
+	    reportScript.update_data()
             reportScript.create_graph()
             #Problem here?
             cwd = os.getcwd()
             print('cwd')
             print(cwd)
+	    today = datetime.date.today()
+	    report_name = "DUDA_Scouting_Report(" + str(today) + ").xlsx"
             abs_path = '/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report-Temp.xlsx'
             print(abs_path)
             if os.path.exists(abs_path):
@@ -45,7 +48,7 @@ def report(request):
                 with open(abs_path, "r") as excel:
                     data = excel.read()
                     response = HttpResponse(data,content_type='application/vnd.ms-excel')
-                    response['Content-Disposition'] = 'attachment; filename=DUDA_Scouting_Report.xlsx'
+                    response['Content-Disposition'] = 'attachment; filename="{}"'.format(report_name)
                     return response
     return render(request, 'report.html', { 
 
@@ -152,6 +155,8 @@ def labelleMature(request):
                         obj.ODEggs = currentData
                     elif scoutedItem == 'Spidermites':
                         obj.SpiderMites = currentData
+		    elif scoutedItem == 'Other':
+                        obj.Other = currentData
                     obj.save()
                     message = str(lastRow)
                 else:
@@ -178,7 +183,9 @@ def labelleMature(request):
                         obj.ODEggs = currentData
                     elif scoutedItem == 'Spidermites':
                         obj.SpiderMites = currentData
-                    obj.save()
+                    elif scoutedItem == 'Other':
+                        obj.Other = currentData
+		    obj.save()
                     
                 i += 1
             

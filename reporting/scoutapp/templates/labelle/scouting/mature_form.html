@@ -102,7 +102,8 @@
             key[4] = formdate.concat(',',formField,',',formStop,',',"OD");
             key[5] = formdate.concat(',',formField,',',formStop,',',"SM");
             key[6] = formdate.concat(',',formField,',',formStop,',',"LM");
-            
+            key[7] = formdate.concat(',',formField,',',formStop,',',"Other");
+
             var value = [];
             value[0] = document.getElementById("Adults").value;
             value[1] = document.getElementById("Eggs").value;
@@ -126,10 +127,11 @@
             else{
                 value[6] = 'X'
             }
-            
+            value[7] = document.getElementById("Other").value;
+
             // Set data in localStorage
             var i = 0;
-            while(i < 7){
+            while(i < 8){
                 window.localStorage.setItem(key[i], value[i]);
                 i = i + 1;
             }
@@ -295,6 +297,15 @@
         <div class="checkbox">
           <label for="LM"><input type="checkbox" value="LM" id="LM" style="margin-top:5vw;"> &nbsp; &nbsp; Leafminer</label>
             <a href="../../../static/img/leafminer.jpg" data-lightbox="LM" data-title="Leafminer Damage"><img src="../../../static/img/info-icon.png" alt="info" width="4%" height="4%" style="vertical-align: top; margin-top: 2vh"></a>
+        </div>
+
+	<div class="form-group">
+            <div class="col-sm-10" style="float:left;width:25%;">
+                <label class="col-sm-2 control-label" style="font-size:x-large;font-weight: bold;">Other Pests: </label>
+            </div>
+            <div class="col-sm-10" style="float:right;width:75%;margin-top:4%;margin-bottom:4%">
+                <input class="form-control" id="Other" style="display: flex;justify-content: center;align-items:center;" id="focusedInput" type="text" value="" placeholder="(Optional)">
+            </div>
         </div>
         
         <p> &nbsp; </p>

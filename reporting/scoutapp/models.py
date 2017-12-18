@@ -33,6 +33,7 @@ class LabelleData(models.Model):
     ODLarva = models.TextField(default = ' ', blank=True)
     ODEggs = models.TextField(default = ' ', blank=True)
     SpiderMites = models.TextField(default = ' ', blank=True)
+    Other = models.TextField(default = ' ', blank=True)
     
 class labelleFieldOrder(models.Model):
     fieldName = models.TextField(default = ' ', blank=True)
