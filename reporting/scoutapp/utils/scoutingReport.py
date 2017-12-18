@@ -22,7 +22,7 @@ class scoutingReport():
         print(cwd)
 
         # Establishing a connection to the mySQL database
-        cnx = mysql.connector.connect(user='root', password='dudar00t2017',
+        cnx = mysql.connector.connect(user='root', password='Kh18riku!',
                                       host='127.0.0.1',
                                       database='scouter',
                                       charset = 'utf8',
@@ -190,6 +190,48 @@ class scoutingReport():
                             young_sheet['AC' + str(i)].value = row["ODLarva"]
                             young_sheet['AI' + str(i)].value = row["SpiderMites"]
 
+                i += 1
+
+        report_wb.save('/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report-Temp.xlsx')
+
+    def other_pests(self):
+        report_path = "/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report-Temp.xlsx"
+        report_wb = openpyxl.load_workbook(report_path)
+        mature_sheet = report_wb.get_sheet_by_name('Mature Data')
+        mature_report_sheet = report_wb.get_sheet_by_name('Mature Report')
+        mature_standard_pests = ['LM', 'OD', 'SM']
+        mature_max_row = mature_sheet.max_row
+        print(mature_sheet.max_row)
+
+        i = 7
+        while i < mature_max_row:
+            mature_report_sheet['AC' + str(i)].value = ''
+            i += 1
+
+
+        for pest in mature_standard_pests:
+            print(pest)
+            i = 7
+            while i < mature_max_row:
+                if pest == 'LM':
+                    pest_columns = ['AC', 'AD', 'AE', 'AF', 'AG']
+                elif pest == 'OD':
+                    pest_columns = ['AI', 'AJ', 'AK', 'AL', 'AM']
+                elif pest == 'SM':
+                    pest_columns = ['AO', 'AP', 'AQ', 'AR', 'AS']
+                j = 0
+                pest_tally = 0
+                while j < 5:
+                    if mature_sheet[pest_columns[j] + str(i)].value == 'O':
+                        pest_tally += 1
+                    j += 1
+                if pest_tally > 2:
+                    print('got one: ' + str(i))
+                    initial = mature_report_sheet['AC' + str(i)].value
+                    print(type(initial))
+                    if initial is None:
+                        initial = ''
+                    mature_report_sheet['AC' + str(i)].value = initial + ' ' + pest
                 i += 1
 
         report_wb.save('/home/lbadmin/projects18/reporting/scoutapp/utils/Scouting-Report-Temp.xlsx')
