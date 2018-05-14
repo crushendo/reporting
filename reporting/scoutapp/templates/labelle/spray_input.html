@@ -1,0 +1,201 @@
+{% extends 'base.html' %} 
+{% block title %}About - {{ block.super }}{% endblock %} 
+
+<style>
+    select {
+       margin-left: 1vw;
+    }
+</style>
+
+{% block content %}
+
+<form name="form" role="form" enctype="multipart/form-data" method="POST" onsubmit="name_id()" action="spray_input">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% if form.errors %}
+        <p>NOT VALID</p>
+        {% for errors in form.errors %}
+            {{ errors }}
+        {% endfor %}
+    {% endif %}
+    
+    <h5 style="margin-bottom:0.5vh">
+            &nbsp; Trial Name:
+    </h5>
+    <div class="container" id="id_container" style="margin-left: 0.5vw">
+        <select name="name" id="id_name" onchange="newName()">
+            <option value="default">Trial Name</option>
+            <option value="New Trial">New Trial</option>
+            {% for name in trialList %}
+                <option value="{{field}}"> {{ name }} </option>
+            {% endfor %}
+        </select>
+    </div>
+    <h5 style="margin-bottom:0.5vh">
+            &nbsp; Field Area:
+    </h5>
+    <div class="container" id="id_container" style="margin-left: 0.5vw">
+        <select name="selectArea" id="id_selectArea" onchange="getSelection1()">
+            <option value="default">Select an Area</option>
+            <option value="New Area">New Area</option>
+            {% for field in openAreas %}
+                <option value="{{field}}"> {{ field }} </option>
+            {% endfor %}
+        </select>
+    </div>
+    <h5 style="margin-bottom:0.5vh">
+            &nbsp; Field:
+    </h5>
+    <div class="container" id="id_container" style="margin-left: 0.5vw">
+        <select name="field" id="id_field">
+            <option value="Field">Field</option>
+            <option value="New Field">New Field</option>
+        </select>
+    </div>
+    <h5 style="margin-bottom:0.5vh">
+            &nbsp; Spray Date:
+    </h5>
+    <div class="container" style="margin-left:0%;">
+        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="width:15vw;margin-top:1vh;position:relative;float:left;">
+            <input type="text" id="datepicker" name="datepicker" style='width:20vw' placeholder="Date" value="">
+        </div>
+    </div>
+    <h5 style="margin-bottom:0.5vh">
+            &nbsp; Chemical:
+    </h5>
+    <div class="container" style="margin-left:0%;">
+        <input type="text" id="id_chemical" name="chemical" style='width:20vw' placeholder="Chemical" value="">
+    </div>
+    <h5 style="margin-bottom:0.5vh">
+            &nbsp; Sprayer:
+    </h5>
+    <div class="container" style="margin-left:0%;">
+        <input type="text" id="id_sprayer" name="sprayer" style='width:20vw' placeholder="Sprayer" value="">
+    </div>
+    <h5 style="margin-bottom:0.5vh">
+            &nbsp; Position:
+    </h5>
+    <div class="container" id="id_container" style="margin-left: 0.5vw">
+        <select name="position" id="id_position">
+            <option value="Upper Outer">Upper Outer</option>
+            <option value="Middle Outer">Middle Outer</option>
+            <option value="Lower Outer">Lower Outer</option>
+            <option value="Upper Inner">Upper Inner</option>
+            <option value="Middle Inner">Middle Inner</option>
+            <option value="Lower Inner">Lower Inner</option>
+        </select>
+    </div>
+    <h5 style="margin-bottom:0.5vh">
+            &nbsp; Notes:
+    </h5>
+    <textarea id="id_notes" name="notes" placeholder="Notes" style="margin-left:0.5vw"></textarea>
+    <h5 style="margin-bottom:0.5vh">
+            &nbsp; Spray Card Image:
+    </h5>
+    <input id="id_spray_paper" type="file" class="" accept="image/*" name="spray_paper">
+    <br>
+    <input type="submit" class="btn btn-primary" value="Submit" style="float: left;margin-left:10%;width: 150px;">
+    <br>  
+    
+</form>    
+    
+<script>
+    var picker = new Pikaday({ field: document.getElementById('id_startDate') });
+</script>
+
+<script type="text/javascript">
+        var picker = new Pikaday(
+        {
+            field: document.getElementById('datepicker'),
+            firstDay: 1,
+            minDate: new Date(2015, 0, 1),
+            format: 'MM/DD/YYYY',
+            yearRange: [2015,2030]
+        });
+</script>
+
+<!-- Autofills the current date in the date box -->
+<script type="text/javascript">
+    function getDate() {
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        if(dd<10) {
+            dd='0'+dd
+        } 
+        if(mm<10) {
+            mm='0'+mm
+        } 
+        today = mm+'/'+dd+'/'+yyyy;
+        document.getElementById("datepicker").value = today;
+      }
+</script>
+
+<script type="text/javascript">
+    window.onload = function pageLoad(){
+        getDate();
+    }
+</script>
+    
+<script type="text/javascript">
+    function getSelection1() {
+        document.getElementById("id_field").options.length = 0;
+        var selection1 = document.getElementById("id_selectArea").value;
+        var a = {{ jsonDict|safe }};
+        var selectedFields = a[selection1];
+        var FieldsList = a[selection1];
+        var length = 0;
+        for( var selected1 in FieldsList ) {
+            if( FieldsList.hasOwnProperty(selected1) ) {
+                ++length;
+            };
+        }
+        var check = typeof FieldsList
+        var select = document.getElementById('id_field');
+        select.options[select.options.length] = new Option("Select a Field", "Select a Field");
+        for(var ii = 0; ii < length; ii++){
+            FieldOption = FieldsList[ii];
+            if (FieldOption == ""){
+                continue;
+            }
+            select.options[select.options.length] = new Option(FieldOption, FieldOption);
+        };  
+    } 
+</script>
+
+<script type="text/javascript">
+    function newName(){
+        selectedName = document.getElementById("id_name").value
+        //first check to make sure there isn't already a "new name" box
+        var nameBox = document.getElementById("id2_name")
+        if(document.body.contains(nameBox)) {
+            selectedName = document.getElementById("id_name").value
+            //if there is one and selectedName =! "New Trial" delete it
+            if(selectedName == ""){
+                nameBox.parentNode.removeChild(nameBox);
+            }
+        //otherwise, create the "new name" box
+        } else if(selectedName == "New Trial"){
+            var inputBox = document.createElement("input");
+            inputBox.type = "text";
+            inputBox.setAttribute("name", "name")
+            inputBox.setAttribute("id", "id2_name")
+            inputBox.setAttribute("value", "")
+            inputBox.setAttribute("placeholder", "New Trial Name")
+            var parent = document.getElementById("id_container");
+            parent.appendChild(inputBox);
+
+        } 
+        
+    }
+</script>
+<script type="text/javascript">
+    function name_id(){
+        if(document.body.contains(nameBox)) {
+            document.getElementById("id_name").id = 'id_name2'
+            document.getElementById("id2_name").id = 'id_name'
+        }
+    }
+</script>
+{% endblock %}

@@ -4,15 +4,17 @@ from django.contrib import auth
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.decorators import login_required
-from scoutapp.models import Field, LabelleData, labelleFieldOrder, scoutingAreas
+from scoutapp.models import Field, LabelleData, labelleFieldOrder, scoutingAreas, sprayTrials
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import FormView 
 from collections import defaultdict
 from django.shortcuts import get_object_or_404
 import json, os
 import datetime
-from scoutapp.forms import fieldForm, labelleMatureNE, labelleMatureNW, labelleMatureSE, labelleMatureSW, labelleMatureC
+from scoutapp.forms import fieldForm, labelleMatureNE, labelleMatureNW, labelleMatureSE, labelleMatureSW, labelleMatureC, sprayForm
 from utils.scoutingReport import scoutingReport
+from django.core.serializers.json import DjangoJSONEncoder
+from reporting.tasks import add
 
 @login_required
 def report(request):
@@ -502,3 +504,122 @@ def labelleYoungForm(request):
         'pastSpiderMites': pastSpiderMites,
         'pastFlag': pastFlag
     })
+
+def sprayInput(request):
+    openAreas = Field.objects.order_by("area").values_list("area", flat=True).distinct()
+    trialList = sprayTrials.objects.order_by("name").values_list("name", flat=True).distinct()
+    fieldDict = defaultdict(list, flat=True)
+    j=0
+    fieldList = 0
+    currentArea = 0
+    while j < len(openAreas):
+        currentArea = openAreas[j]
+        fieldList = list(Field.objects.filter(area=currentArea).order_by("fieldName").values_list("fieldName", flat=True).distinct())
+        lenFieldList = len(fieldList)
+        k = 0
+        while k < lenFieldList:
+            currentField = fieldList[k]
+            fieldDict[currentArea].append(currentField)
+            k = k + 1
+        j = j + 1 
+    form_class = sprayForm
+    form = form_class
+    jsonDict = json.dumps(fieldDict)
+    if request.method == "POST":
+        form = sprayForm(request.POST, request.FILES)
+        if form.is_valid():
+            form_area = str(request.POST.get("selectArea"))
+            field_name = str(request.POST.get("field"))
+            trial_name = str(request.POST.get("name"))
+            spray_date = str(request.POST.get("datepicker"))
+            position = str(request.POST.get("position"))
+            chemical = str(request.POST.get("chemical"))
+            sprayer = str(request.POST.get("sprayer"))
+            notes = str(request.POST.get("notes"))
+            obj = sprayTrials(name=trial_name, field=field_name, chemical=chemical, spray_date=spray_date, position=position, sprayer=sprayer, notes=notes)
+            obj.spray_paper = form.cleaned_data['spray_paper']
+            obj.save()
+            
+            #Run celery task daemon below
+            last_obj = sprayTrials.objects.latest('id')
+            row_id = str(last_obj.id)
+            print(row_id)
+            image_path = str(sprayTrials.objects.filter(id=row_id).values_list("spray_paper", flat=True))
+            add.delay(image_path, row_id)
+            
+            #m = sprayTrials.objects.get(id=row_id)
+            #m.model_pic = form.cleaned_data['image']
+            #m.save()
+            return HttpResponseRedirect('/')
+        else:
+            # form instance will have errors so we pass it into template
+            return render(request, 'labelle/spray_input.html', {'form': form})
+    
+    return render(request, 'labelle/spray_input.html', { 
+        'form': form,
+        'jsonDict': jsonDict,
+        'fieldList': fieldList,
+        'openAreas': openAreas,
+        'fieldDict': fieldDict,
+        'currentArea': currentArea, 
+        'trialList': trialList
+    })
+
+def sprayReport(request):
+    name_list = sprayTrials.objects.order_by("name").values_list("name", flat=True)
+    field_list = sprayTrials.objects.order_by("name").values_list("field", flat=True)
+    date_list = sprayTrials.objects.order_by("name").values_list("spray_date", flat=True)
+    chemical_list = sprayTrials.objects.order_by("name").values_list("chemical", flat=True)
+    sprayer_list = sprayTrials.objects.order_by("name").values_list("sprayer", flat=True)
+    position_list = sprayTrials.objects.order_by("name").values_list("position", flat=True)
+    notes_list = sprayTrials.objects.order_by("name").values_list("notes", flat=True)
+    num_mean_list = sprayTrials.objects.order_by("name").values_list("num_mean_in", flat=True)
+    num_med_list = sprayTrials.objects.order_by("name").values_list("num_median_in", flat=True)
+    num_stdev_list = sprayTrials.objects.order_by("name").values_list("num_stdev_in", flat=True)
+    vol_mean_list = sprayTrials.objects.order_by("name").values_list("vol_mean_in", flat=True)
+    vol_median_list = sprayTrials.objects.order_by("name").values_list("vol_median_in", flat=True)
+    coverage_list = sprayTrials.objects.order_by("name").values_list("coverage_percent", flat=True)
+    
+    names_distinct = sprayTrials.objects.order_by("name").values_list("name", flat=True).distinct()
+    fields_distinct = sprayTrials.objects.order_by("field").values_list("field", flat=True).distinct()
+    dates_distinct = sprayTrials.objects.order_by("spray_date").values_list("spray_date", flat=True).distinct()
+    chemicals_distinct = sprayTrials.objects.order_by("chemical").values_list("chemical", flat=True).distinct()
+    sprayers_distinct = sprayTrials.objects.order_by("sprayer").values_list("sprayer", flat=True).distinct()
+    position_distinct = sprayTrials.objects.order_by("position").values_list("position", flat=True).distinct
+    
+
+    name_json = json.dumps(list(name_list), cls=DjangoJSONEncoder)
+    field_json = json.dumps(list(field_list), cls=DjangoJSONEncoder)
+    date_json = json.dumps(list(date_list), cls=DjangoJSONEncoder)
+    chemical_json = json.dumps(list(chemical_list), cls=DjangoJSONEncoder)
+    sprayer_json = json.dumps(list(sprayer_list), cls=DjangoJSONEncoder)
+    position_json = json.dumps(list(position_list), cls=DjangoJSONEncoder)
+    notes_json = json.dumps(list(notes_list), cls=DjangoJSONEncoder)
+    
+    form_class = sprayForm
+    form = form_class
+    
+    return render(request, 'spray_report.html', { 
+        'form': form,
+        'name_json': name_json,
+        'field_json': field_json,
+        'date_json': date_json,
+        'chemical_json': chemical_json,
+        'sprayer_json': sprayer_json,
+        'position_json': position_json,
+        'notes_json': notes_json,
+        'num_mean_list': num_mean_list,
+        'num_med_list': num_med_list,
+        'num_stdev_list': num_stdev_list,
+        'vol_mean_list': vol_mean_list,
+        'vol_median_list': vol_median_list,
+        'coverage_list': coverage_list,
+        'names_distinct': names_distinct,
+        'fields_distinct': fields_distinct,
+        'dates_distinct': dates_distinct,
+        'chemicals_distinct': chemicals_distinct,
+        'sprayers_distinct': sprayers_distinct,
+        'position_distinct': position_distinct
+        
+    })
+    

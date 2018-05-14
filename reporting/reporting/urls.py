@@ -20,5 +20,7 @@ urlpatterns = [
     url(r'^labelle/scouting/young$', views.labelleYoung,name='young'),
     url(r'^labelle/scouting/mature_form$', views.labelleMatureForm,name='mature_form'),
     url(r'^labelle/scouting/young_form$', views.labelleYoungForm,name='young_form'),
+    url(r'^labelle/spray_input$', views.sprayInput, name='spray_input'),
+    url(r'^spray_report$', views.sprayReport,name='spray_report'),
     
 ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
