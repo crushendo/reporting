@@ -1,0 +1,12 @@
+{% extends 'base.html' %} 
+{% block title %}About - {{ block.super }}{% endblock %} 
+
+{% block content %}
+
+{% csrf_token %}
+<ul class="nav nav-tabs" role="tablist">
+    <li class="active"><a id="tab1" href="#chart1" role="tab" data-toggle="tab">Psyllids</a></li>
+    <li><a id="tab2" href="#chart2" role="tab" data-toggle="tab">Irrigation</a></li>
+    <li><a id="tab3" href="/manage_labelle/leaf_samples" >Leaf Samples</a></li>
+</ul>
+{% endblock %}

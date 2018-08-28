@@ -351,7 +351,7 @@ body {
   font-family: "Lato", Helvetica, Arial, sans-serif;
   font-size: 18px;
   line-height: 1.72222;
-  color: #34495e;
+  color: #fff;
   background-color: #ffffff;
 }
 a {
@@ -3215,7 +3215,7 @@ fieldset[disabled] .input-group-btn .btn-default.active {
 .dropdown-menu > li > a {
   padding: 8px 16px;
   line-height: 1.429;
-  color: #606d7a;
+  color: #fff;
 }
 .dropdown-menu > li:first-child > a:first-child {
   border-top-right-radius: 4px;
@@ -4500,7 +4500,7 @@ select[multiple].navbar-form .select2-search input[type="text"] {
 }
 @media (max-width: 767px) {
   .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-    color: #34495e;
+    color: #fff;
   }
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {

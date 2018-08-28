@@ -1,4 +1,4 @@
-from configparser import ConfigParser
+import ConfigParser
  
  
 def read_db_config(filename='config.ini', section='mysql'):

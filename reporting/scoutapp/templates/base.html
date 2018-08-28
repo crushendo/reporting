@@ -14,11 +14,15 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <link rel="icon" href="../../favicon.ico">
-
-        <title>Home | DUDA Scouter</title>
+        
+        <title>{% block title %}{% endblock %} | DUDA Scouter</title>
+        
+        
         
         <link href="../../static/dist/css/flat-ui.min.css" rel="stylesheet">
-        <link href="../../static/css/pikaday.css" rel="stylesheet">
+        <link href="../../static/css/pikaday-desktop.css" rel="stylesheet">
+        <link href="../../static/css/pikaday.css" media="all and (device-width: 768px) and (device-height: 1024px) and (orientation:portrait)" rel="stylesheet">
+        <link href="../../static/css/pikaday.css" media="all and (device-width: 768px) and (device-height: 1024px) and (orientation:landscape)" rel="stylesheet">
         <link href="../../static/css/lightbox.css" rel="stylesheet">
 
         <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -28,7 +32,7 @@
         <![endif]-->
         
         <!-- Optional theme -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        
         <!-- Bootstrap core JavaScript
         ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
@@ -39,53 +43,137 @@
         <script src="../../static/js/moment.js"></script>
         <script src="../../static/js/pikaday.js"></script>
         <script src="../../static/js/lightbox.js"></script>
+        
+        <!-- Chart.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js" type="text/javascript"></script>
+        
+
       
         
         {% block header %}{% endblock %}
     </head>
 
-    <body style="overflow-x:hidden; width:100%;">
+    <body style="overflow-x:hidden; width:100%; padding-top:70px">
         <div class="container">
           <!-- Static navbar -->
-            <nav class="navbar navbar-default" role="navigation">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-02">
-                        <span class="sr-only">Toggle navigation</span> 
-                    </button>
-                    <a class="navbar-brand" href="/">Scouter <sup style="font-size:0.5em">BETA</sup></a>
+            <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+                <div class="container" style="padding:0.5vw"> 
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-02">
+                            <span class="sr-only">Toggle navigation</span> 
+                        </button>
+                        <a class="navbar-brand" href="/" style="color:#fff">Scouter <sup style="font-size:0.5em;color:#fff">BETA</sup></a>
+                    </div>
+                    <div class="collapse navbar-collapse" id="navbar-collapse-02" >
+                        <ul class="nav navbar-nav navbar-left">
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Labelle <b class="caret"></b></a>
+                                <span class="dropdown-arrow"></span>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li class="dropdown-header">Scout</li>
+                                    <li><a href="/labelle/scouting/young">Young Trees</a></li>
+                                    <li><a href="/labelle/scouting/mature">Mature Trees</a></li>
+                                    <li><a href="/labelle/scouting/rust_mites">Rust Mites</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li class="dropdown-header">Other Links</li>
+                                    <li><a href="/labelle/spray_input">Spray Trial</a></li>
+                                    <li><a href="/labelle/leaf_input">Leaf Samples</a></li>
+                                    <li><a href="/labelle/wps">WPS</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Report <b class="caret"></b></a>
+                                <span class="dropdown-arrow"></span>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li class="dropdown-header">Report</li>
+                                    <li><a href="/report">Psyllids</a></li>
+                                    <li><a href="/psyllid_report_web">Psyllids (Web Beta)</a></li>
+                                    <li><a href="/spray_report">Spray Trials</a></li>
+                                    <li><a href="/leaf_report">Leaf Samples</a></li>
+                                    <li><a href="/rust_mite_report">Rust Mites</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Manage <b class="caret"></b></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li class="dropdown-header">Manage</li>
+                                    <li><a href="/manage">Labelle</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="/about">About</a></li>
+                            {% if user.is_authenticated %}
+                                <li><a> Welcome,&nbsp; {{user.username}}!</a></li>
+                                <li><a href="/accounts/logout">Log Out</a></li>
+                            {% else %}
+                                <li><a href="/accounts/login">Log In</a></li>
+                            {% endif %}
+                        </ul>
+                    </div><!--/.nav-collapse -->
                 </div>
-                <div class="collapse navbar-collapse" id="navbar-collapse-02">
-                    <ul class="nav navbar-nav navbar-left">
-                        <li class="dropdown">
-                            <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Labelle <b class="caret"></b></a>
-                            <span class="dropdown-arrow"></span>
-                            <ul class="dropdown-menu" role="menu">
-                                <li class="dropdown-header">Scout</li>
-                                <li><a href="/labelle/scouting/young">Young Trees</a></li>
-                                <li><a href="/labelle/scouting/mature">Mature Trees</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li class="dropdown-header">Other Links</li>
-                                <li><a href="/labelle/wps">WPS</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="/report">Report</a></li>
-                    </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a href="/about">About</a></li>
-                        {% if user.is_authenticated %}
-                            <li><a> Welcome,&nbsp; {{user.username}}!</a></li>
-                            <li><a href="/accounts/logout">Log Out</a></li>
-                        {% else %}
-                            <li><a href="/accounts/login">Log In</a></li>
-                        {% endif %}
-                    </ul>
-                </div><!--/.nav-collapse -->
             </nav>
         </div>
         
         <style>
-        .navbar {
-            background-color: none;
+            .navbar {
+                background-color: #2c3e50;
+                background-image: none;
+                appearance: none;
+                box-shadow: none;
+                border-color: none; /*set the color you want here*/
+            }
+        </style>
+        
+        <style>
+            .dropdown-menu{
+                background-color: #2c3e50;
+            }
+        </style>
+        
+        <style>
+            .navbar-nav .open .dropdown-menu > li > a {
+                color: #ffffff !important;
+            }
+        </style>
+        
+        <style>
+            .navbar-nav .open .dropdown-menu > li > a:hover {
+                color: #1abc9c !important;
+            }
+        </style>
+        
+        <style>
+           .navbar-brand a {
+                color: #fff; !important;
+                font-family: “Helvetica Neue”, Helvetica, Arial, sans-serif;
+            }
+        </style>
+        
+        <style>
+            .dropdown-header{
+                color: #d2d7d3; !important;
+            }
+        </style>
+        
+        <style>
+           .nav.navbar-nav.navbar-left li a {
+                color: #fff; !important;
+                font-family: “Helvetica Neue”, Helvetica, Arial, sans-serif;
+            }
+        </style>
+        
+        <style>
+           .nav.navbar-nav.navbar-right li a {
+                color: #fff; !important;
+                font-family: “Helvetica Neue”, Helvetica, Arial, sans-serif;
+            }
+        </style>
+        
+        <style>
+        .btn-primary {
+            background-color: #006dcc;
+            *background-color: #0044cc;
             background-image: none;
             appearance: none;
             box-shadow: none;
@@ -94,14 +182,21 @@
         </style>
         
         <style>
-        .btn {
-            background-color: #006dcc;
-            *background-color: #0044cc;
-            background-image: none;
-            appearance: none;
-            box-shadow: none;
-            border-color: none; /*set the color you want here*/
-        }
+            .nav.navbar-nav.navbar-right li a:hover {
+                color: #03C9A9;
+            }
+        </style>
+        
+        <style>
+            .nav.navbar-nav.navbar-left li a:hover {
+                color: #03C9A9;
+            }
+        </style>
+        
+        <style>
+            body {
+                background-color: #ececec;
+            }
         </style>
         
         {% block content %}{% endblock %}

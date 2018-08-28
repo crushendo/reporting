@@ -7,17 +7,17 @@
 
 <h1 id="loginTitle">Login to DUDA Scouter</h1>
         <br><br>
-        <form id="login_form" method="POST" role="form" action="/accounts/auth/">
+        <form id="login_form" method="POST" role="form" action="/accounts/login/">
             {% csrf_token %}
             <td class="row">
                 <div class="col-md-6 col-md-offset-3 centered">
                     <div class="input-group">
-                        <input type="text" class="form-control" name="username" placeholder="Email" aria-describedby="basic-addon2">
-                        <span class="input-group-addon" id="basic-addon2">@duda.com</span>
+                        <span class="input-group-addon" id="basic-addon1">Username</span>
+                        <input name="username" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
                     </div>
                     <br>
                     <div class="input-group">
-                        <span class="input-group-addon" id="basic-addon1"></span>
+                        <span class="input-group-addon" id="basic-addon1">Password</span>
                         <input type="password" name="password" class="form-control" placeholder="Password" aria-describedby="basic-addon1">
                     </div>
                     <br><br>
@@ -26,6 +26,7 @@
                     <input type="submit" class="btn btn-primary" value="Submit" style="float: right;margin-right:5%;width: 150px;">
                 </div>
             </td> 
+            <input type="hidden" id="next" name="next">
         </form>
         
         <style>
@@ -35,5 +36,12 @@
                 margin: 0 auto;
             }
         </style>
+
+<script>
+var url = window.location.href 
+var captured = /next=([^&]+)/.exec(url)[1]; // Value is in [1] ('384' in our case)
+var result = captured ? captured : 'myDefaultValue';
+document.getElementById('next').value = result
+</script>
 
 {% endblock %}

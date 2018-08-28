@@ -67,6 +67,28 @@
     
     <script type="text/javascript">
         function syncData() {
+            //Error Handling
+            numAdults = document.getElementById("Adults").value;
+            numEggs = document.getElementById("Eggs").value;
+            numTapped = document.getElementById("Tapped").value;
+            numFlush = document.getElementById("Flush").value;
+            if(numAdults % 1 !== 0 || numAdults == ''){
+                alert('Please input a valid number for Adults.');
+                return false;
+            }
+            if(numEggs % 1 !== 0 || numEggs == ''){
+                alert('Please input a valid number for Eggs/Nymphs.');
+                return false;
+            }
+            if(numTapped % 1 !== 0 || numTapped == ''){
+                alert('Please input a valid number for Tapped.');
+                return false;
+            }
+            if(numFlush % 1 !== 0 || numFlush == ''){
+                alert('Please input a valid number for Flush.');
+                return false;
+            }
+            
             // Save all inputs to localStorage
             var formdate = moment("{{ formDate }}").format('YYYY-MM-DD');
             var formField = "{{ formField }}";
@@ -80,6 +102,7 @@
             key[4] = formdate.concat(',',formField,',',formStop,',',"OD");
             key[5] = formdate.concat(',',formField,',',formStop,',',"SM");
             key[6] = formdate.concat(',',formField,',',formStop,',',"LM");
+            key[7] = formdate.concat(',',formField,',',formStop,',',"Other");
             
             var value = [];
             value[0] = document.getElementById("Adults").value;
@@ -104,10 +127,11 @@
             else{
                 value[6] = 'X'
             }
+            value[7] = document.getElementById("Other").value;
             
             // Set data in localStorage
             var i = 0;
-            while(i < 7){
+            while(i < 8){
                 window.localStorage.setItem(key[i], value[i]);
                 i = i + 1;
             }
@@ -194,15 +218,15 @@
         
         <div class="container" style="border-style: solid;" id="container">
             <span id="TAD1" style="float:left;display:inline-block;display:inline-block;"> Total Adult Psyllids: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </span>
-            <span id="TAD" class="input-group pull-right" style="float:left;">
+            <span id="TAD" class="input-group pull-right" style="float:left;width:34vw;margin-top:9vh">
                 <span class="input-group-btn">
-                    <button type="button" class="btn btn-default btn-number" data-type="minus" data-field="quant[1]">
+                    <button type="button" class="btn btn-default btn-number" style="width:12vw;height:6vh" data-type="minus" data-field="quant[1]">
                       <span class="glyphicon glyphicon-minus"></span>
                     </button>
                 </span>
-                <input id="Adults" type="tel" name="quant[1]" class="form-control input-number" value="0" min="0" max="100" style="text-align:center;">
+                <input id="Adults" type="tel" name="quant[1]" class="form-control input-number" value="0" min="0" max="100" step="1" style="text-align:center;height:6vh" onclick="this.value=''">
                 <span class="input-group-btn">
-                  <button type="button" class="btn btn-default btn-number" data-type="plus" data-field="quant[1]">
+                  <button type="button" class="btn btn-default btn-number" style="width:12vw;height:6vh" data-type="plus" data-field="quant[1]">
                       <span class="glyphicon glyphicon-plus"></span>
                   </button>
                 </span>
@@ -211,15 +235,15 @@
         <br>
         <div class="container" style="border-style: solid;" id="container">
             <span id="TAD1" style="float:left;display:inline-block;display:inline-block;"> Total Eggs and Nymphs: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </span>
-            <span id="TAD" class="input-group pull-right" style="float:left;">
+            <span id="TAD" class="input-group pull-right" style="float:left;width:34vw;margin-top:9vh">
                 <span class="input-group-btn">
-                    <button type="button" class="btn btn-default btn-number" data-type="minus" data-field="quant[2]">
+                    <button type="button" class="btn btn-default btn-number" style="width:12vw;height:6vh" data-type="minus" data-field="quant[2]">
                       <span class="glyphicon glyphicon-minus"></span>
                     </button>
                 </span>
-                <input id="Eggs" type="tel" name="quant[2]" class="form-control input-number" value="0" min="0" max="100" style="text-align:center;">
+                <input id="Eggs" type="tel" name="quant[2]" class="form-control input-number" value="0" min="0" max="100" style="text-align:center;height:6vh" onclick="this.value=''">
                 <span class="input-group-btn">
-                  <button type="button" class="btn btn-default btn-number" data-type="plus" data-field="quant[2]">
+                  <button type="button" class="btn btn-default btn-number" style="width:12vw;height:6vh" data-type="plus" data-field="quant[2]">
                       <span class="glyphicon glyphicon-plus"></span>
                   </button>
               </span>
@@ -228,15 +252,15 @@
         <br>
         <div class="container" id="container" style="border-style: solid;">
             <span id="TAD1" style="float:left;display:inline-block;"> Total Psyllids Tapped: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </span>
-            <span id="TAD" class="input-group pull-right" style="float:left;">
+            <span id="TAD" class="input-group pull-right" style="float:left;width:34vw;margin-top:9vh">
                 <span class="input-group-btn">
-                    <button type="button" class="btn btn-default btn-number" data-type="minus" data-field="quant[3]">
+                    <button type="button" class="btn btn-default btn-number" style="width:12vw;height:6vh" data-type="minus" data-field="quant[3]">
                       <span class="glyphicon glyphicon-minus"></span>
                     </button>
                 </span>
-                <input id="Tapped" type="tel" name="quant[3]" class="form-control input-number" value="0" min="0" max="100" style="text-align:center;">
+                <input id="Tapped" type="tel" name="quant[3]" class="form-control input-number" value="0" min="0" max="100" style="text-align:center;height:6vh" onclick="this.value=''">
                 <span class="input-group-btn">
-                  <button type="button" class="btn btn-default btn-number" data-type="plus" data-field="quant[3]">
+                  <button type="button" class="btn btn-default btn-number" style="width:12vw;height:6vh" data-type="plus" data-field="quant[3]">
                       <span class="glyphicon glyphicon-plus"></span>
                   </button>
               </span>
@@ -245,19 +269,19 @@
         <br>
         <div class="container" id="container" style="border-style: solid;">
             <span id="TAD1" style="float:left;display:inline-block;"> Average Flush Per Tree: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </span>
-            <span id="TAD" class="input-group pull-right" style="float:left;">
+            <div id="TAD" class="input-group pull-right" style="float:left;width:34vw;margin-top:9vh">
                 <span class="input-group-btn">
-                    <button type="button" class="btn btn-default btn-number" data-type="minus" data-field="quant[4]">
+                    <button type="button" class="btn btn-default btn-number" style="width:12vw;height:6vh" data-type="minus" data-field="quant[4]">
                       <span class="glyphicon glyphicon-minus"></span>
                     </button>
                 </span>
-                <input id="Flush" type="tel" name="quant[4]" class="form-control input-number" value="0" min="0" max="100" style="text-align:center;">
+                <input id="Flush" type="number" name="quant[4]" class="form-control input-number" value="0" min="0" max="20" style="text-align:center;height:6vh" onclick="this.value=''">
                 <span class="input-group-btn">
-                  <button type="button" class="btn btn-default btn-number" data-type="plus" data-field="quant[4]">
+                  <button type="button" class="btn btn-default btn-number" style="width:12vw;height:6vh" data-type="plus" data-field="quant[4]">
                       <span class="glyphicon glyphicon-plus"></span>
                   </button>
               </span>
-            </span>
+            </div>
         </div>
         
          <p> &nbsp; </p>
@@ -275,12 +299,22 @@
             <a href="../../../static/img/leafminer.jpg" data-lightbox="LM" data-title="Leafminer Damage"><img src="../../../static/img/info-icon.png" alt="info" width="4%" height="4%" style="vertical-align: top; margin-top: 2vh"></a>
         </div>
         
+        <div class="form-group">
+            <div class="col-sm-10" style="float:left;width:25%;">
+                <label class="col-sm-2 control-label" style="font-size:x-large;font-weight: bold;">Other Pests: </label>
+            </div>
+            <div class="col-sm-10" style="float:right;width:75%;margin-top:4%;margin-bottom:4%">
+                <input class="form-control" id="Other" style="display: flex;justify-content: center;align-items:center;" id="focusedInput" type="text" value="" placeholder="(Optional)">
+            </div>
+        </div>
+
         <p> &nbsp; </p>
         
+        <div>
         <input type="button" onclick="syncData()" class="btn btn-primary" value="Submit" style="float: right;margin-right:5%;width: 150px;">
         
         <input type="button" onclick="location.href = '/labelle/scouting/mature';" class="btn btn-primary" value="Cancel" style="float: right;margin-right:5%;width: 150px;">
-        
+        </div>
         <p> &nbsp; </p>
         
     </form>

@@ -3,6 +3,12 @@
 
 {% block header %}
 
+<style>
+$('div.ui-pikaday').css({
+   font-size:20px;
+});
+</style>
+
 <script>
     var picker = new Pikaday({ field: document.getElementById('datepicker') });
 </script>
@@ -67,7 +73,7 @@
     </h5>
     <div class="container" style="margin-left:0%;">
         <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="width:50vw;margin-top:1vh;position:relative;float:left;">
-            <input type="text" id="datepicker" name="datepicker" style='width:65vw' readonly="true" value="Date">
+            <input type="text" id="datepicker" name="datepicker" style='width:45vw;' readonly="true" value="Date">
         </div>
     </div>
     
@@ -458,7 +464,7 @@
             firstDay: 1,
             minDate: new Date(2000, 0, 1),
             format: 'MM/DD/YYYY',
-            yearRange: [2000,2020]
+            yearRange: [2000,2030]
         });
     </script>
     

@@ -8,7 +8,7 @@ from openpyxl.chart import (
     Reference,
 )
 from openpyxl.chart.axis import DateAxis
-import mysql.connector
+#import mysql.connector
 
 class scoutingReport():
     def sql2xl(self, startDateInput, endDateInput):
@@ -32,7 +32,7 @@ class scoutingReport():
         mature_fields = cnx.cursor(dictionary=True)
         query = ("SELECT * FROM scoutapp_field WHERE age = 'Mature'")
         mature_fields.execute(query)
-        report_path = "scoutapp/utils/Scouting Report.xlsx"
+        report_path = "/Users/Ryan/projects18/reporting/scoutapp/utils/Scouting Report.xlsx"
         report_wb = openpyxl.load_workbook(report_path)
         mature_sheet = report_wb.get_sheet_by_name('Mature Data')
 
@@ -193,8 +193,56 @@ class scoutingReport():
 
         report_wb.save(report_path)
 
+    def other_pests(self):
+        report_path = "/Users/Ryan/projects18/reporting/scoutapp/utils/Scouting Report.xlsx"
+        report_wb = openpyxl.load_workbook(report_path)
+        mature_sheet = report_wb.get_sheet_by_name('Mature Data')
+        mature_report_sheet = report_wb.get_sheet_by_name('Mature Report')
+        mature_standard_pests = ['LM', 'OD', 'SM']
+        mature_max_row = mature_sheet.max_row
+        print(mature_sheet.max_row)
+
+        i = 7
+        while i < mature_max_row:
+            mature_report_sheet['AC' + str(i)].value = ''
+            i += 1
+
+
+        for pest in mature_standard_pests:
+            print(pest)
+            i = 7
+            while i < mature_max_row:
+                if pest == 'LM':
+                    pest_columns = ['AC', 'AD', 'AE', 'AF', 'AG']
+                elif pest == 'OD':
+                    pest_columns = ['AI', 'AJ', 'AK', 'AL', 'AM']
+                elif pest == 'SM':
+                    pest_columns = ['AO', 'AP', 'AQ', 'AR', 'AS']
+                j = 0
+                pest_tally = 0
+                while j < 5:
+                    if mature_sheet[pest_columns[j] + str(i)].value == 'O':
+                        pest_tally += 1
+                    j += 1
+                if pest_tally > 2:
+                    print('got one: ' + str(i))
+                    initial = mature_report_sheet['AC' + str(i)].value
+                    print(type(initial))
+                    if initial is None:
+                        initial = ''
+                    mature_report_sheet['AC' + str(i)].value = initial + ' ' + pest
+                i += 1
+
+        report_wb.save(report_path)
+
+
+
+
+
+
+
     def update_data(self):
-        report_path = "scoutapp/utils/Scouting Report.xlsx"
+        report_path = "/Users/Ryan/projects18/reporting/scoutapp/utils/Scouting Report.xlsx"
         report_wb = openpyxl.load_workbook(report_path)
         mature_graph = report_wb.get_sheet_by_name('Mature Graph')
 
@@ -226,7 +274,7 @@ class scoutingReport():
 
 
     def create_graph(self):
-        report_path = "scoutapp/utils/Scouting Report.xlsx"
+        report_path = "/Users/Ryan/projects18/reporting/scoutapp/utils/Scouting Report.xlsx"
         report_wb = openpyxl.load_workbook(report_path)
         mature_graph = report_wb.get_sheet_by_name('Mature Graph')
         last_row = int(mature_graph.max_row)
@@ -257,7 +305,8 @@ class scoutingReport():
         report_wb.save(report_path)
 
 
-#a = scoutingReport()
+a = scoutingReport()
 #a.sql2xl()
 #a.update_data()
+a.other_pests()
 #a.create_graph()

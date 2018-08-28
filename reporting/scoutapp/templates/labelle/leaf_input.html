@@ -1,0 +1,79 @@
+{% extends 'base.html' %} 
+{% block title %}About - {{ block.super }}{% endblock %} 
+
+<style>
+    select {
+       margin-left: 1vw;
+    }
+</style>
+
+{% block content %}
+
+<form name="form" role="form" enctype="multipart/form-data" method="POST" action="/labelle/leaf_check">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% if form.errors %}
+        <p>NOT VALID</p>
+        {% for errors in form.errors %}
+            {{ errors }}
+        {% endfor %}
+    {% endif %}
+    
+    <h5 style="margin-bottom:0.5vh">
+            &nbsp; Leaf Sample Data CSV:
+    </h5>
+    <input id="id_spray_paper" type="file" class="" accept=".csv, .txt" name="spray_paper">
+    <br>
+    
+     <h5 style="margin-bottom:0.5vh">
+            &nbsp; Sample Date:
+    </h5>
+    <div class="container" style="margin-left:0%;">
+        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="width:15vw;margin-top:1vh;position:relative;float:left;">
+            <input type="text" id="datepicker" name="datepicker" style='width:20vw' placeholder="Date" value="">
+        </div>
+    </div>
+    <br>
+    <input type="submit" class="btn btn-primary" value="Submit" style="float: left;margin-left:10%;width: 150px;">
+    <br>  
+    <br>
+    <input type="button" class="btn btn-danger" value="Remove Data" style="float: left;margin-left:10%;width: 150px;" onclick="window.location.href='/labelle/leaf_remove'">
+    
+</form>
+
+<script type="text/javascript">
+        var picker = new Pikaday(
+        {
+            field: document.getElementById('datepicker'),
+            firstDay: 1,
+            minDate: new Date(2015, 0, 1),
+            format: 'MM/DD/YYYY',
+            yearRange: [2015,2030]
+        });
+</script>
+
+<!-- Autofills the current date in the date box -->
+<script type="text/javascript">
+    function getDate() {
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        if(dd<10) {
+            dd='0'+dd
+        } 
+        if(mm<10) {
+            mm='0'+mm
+        } 
+        today = mm+'/'+dd+'/'+yyyy;
+        document.getElementById("datepicker").value = today;
+      }
+</script>
+
+<script type="text/javascript">
+    window.onload = function pageLoad(){
+        getDate();
+    }
+</script>
+    
+{% endblock %}

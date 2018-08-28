@@ -1,0 +1,775 @@
+{% extends 'base.html' %} 
+{% block title %}Rust Mite Report{{ block.super }}{% endblock %} 
+
+{% block header %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
+  
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.flash.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.print.min.js"></script>
+<style>
+    .wrapper {
+        display: grid;
+
+        /*  Define the size and number of columns in our grid. 
+        The fr unit works similar to flex:
+        fr columns will share the free space in the row in proportion to their value.
+        We will have 2 columns - the second will be 3x the size of the first.  */
+        grid-template-columns: 15vw 3fr;
+
+        /*  Assign the grid areas we did earlier to specific places on the grid. 
+            First row is all header.
+            Second row is shared between main and sidebar.
+            Last row is all footer.  */
+        grid-template-areas: 
+            "header header"
+            "sidebar main"
+
+        /*  The gutters between each grid cell will be 60 pixels. */
+        grid-gap: 60px;
+        grid-auto-rows: minmax(100px, auto);
+        }
+    
+    .main {
+        grid-area: main;
+        grid-column: 2;
+        margin-right: 5vw;
+        margin-left: 3vw;
+        grid-row: 1
+    }
+    .sidebar {
+        grid-area: sidebar;
+        grid-column: 1;
+        grid-row: 1
+    }
+    footer {
+        grid-area: footer;
+</style>
+
+<style>
+    .bigContainer { border:2px solid #ccc; height: 250px; overflow-y: scroll; };
+</style>
+
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+    tr:nth-child(even) {
+        background-color: #e6e6e6;
+    }
+    tr:hover {
+        background-color: #d9e6f2
+    }
+    table-fixed thead {
+      width: 97%;
+    }
+    .table-fixed tbody {
+      height: 400px;
+      overflow-y: scroll;
+      width: 100%;
+    }
+    
+
+</style>
+
+
+
+<style>
+    .checkContainer { border:2px solid #ccc; height: 100px; overflow-y: scroll; }
+</style>
+
+{% endblock %}
+{% block content %}
+
+
+{% csrf_token %}
+
+<ul class="nav nav-tabs" role="tablist">
+    <li class="active"><a id="tab1" href="#table" role="tab" data-toggle="tab">Table</a></li>
+    <li><a id="tab2" href="#graph" role="tab" data-toggle="tab">Graph</a></li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane active" id="table">
+        <div class="wrapper"> 
+            <div class="sidebar" style="margin-left: 0.5vw">
+                <h5 style="margin-top: 2vh; text-align: center">Filter</h5>
+                <div>
+                    <h6 style="margin-bottom:0.5vh">Start Date: </h6>
+                    <div class="container" style="margin-left:0%;">
+                        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="width:10vw;margin-top:1vh;position:relative;float:left;">
+                            <input type="text" id="startDate" name="startDate" style='width:13vw' readonly="true" value="Date">
+                        </div>
+                    </div>
+                    <h6 style="margin-bottom:0.5vh">End Date:</h6>
+                    <div class="container" style="margin-left:0%;">
+                        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="width:10vw;margin-top:1vh;position:relative;float:left;">
+                            <input type="text" id="endDate" name="endDate" style='width:13vw' readonly="true" value="Date">
+                        </div>
+                    </div>
+                    <br>
+                        <input type="button" class="btn btn-primary" value="Update" onclick="updateDates();" 
+                               style="float: right;margin-bottom:20px;width: 150px;">
+                </div>
+            </div>
+            <div class="main" style="overflow-x: scroll;">
+                <h5 style="margin-top: 2vh; text-align: center">Mites Report</h5>
+                <table id=myTable class="table hover" data-toggle="table" style="margin:0px">
+                    <thead>
+                        <tr class="info" >
+                            <th data-sortable="true">Block</th>
+                            <th>Date</th>
+                            <th>Total LF</th>
+                            <th>Low</th>
+                            <th>Low %</th>
+                            <th>High</th>
+                            <th>High %</th>
+                            <th>Total %</th>
+                            <th>Mite Rating</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody1">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane" id="graph">
+        <div class="wrapper"> 
+            <aside class="sidebar" style="margin-left: 0.5vw">
+                <h5 style="margin-top: 2vh; text-align: center">Filter</h5>
+                <div>
+                    <h6>Field:</h6>
+                    <div class="bigContainer">
+                        <form id="graphField">
+                            <input type="radio" name="graphField" value="All" > All <br/>
+                            {% for field in fields_distinct %}
+                                <input type="radio" name="graphField" value="{{field}}" > {{ field }} <br/>
+                            {% endfor %}
+                        </form>
+                    </div>
+                    <h6 style="margin-bottom:0.5vh">Start Date: </h6>
+                    <div class="container" style="margin-left:0%;">
+                        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="width:10vw;margin-top:1vh;position:relative;float:left;">
+                            <input type="text" id="graphStartDate" name="graphStartDate" style='width:13vw' readonly="true" value="Date">
+                        </div>
+                    </div>
+                    <h6 style="margin-bottom:0.5vh">End Date:</h6>
+                    <div class="container" style="margin-left:0%;">
+                        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="width:10vw;margin-top:1vh;position:relative;float:left;">
+                            <input type="text" id="graphEndDate" name="graphEndDate" style='width:13vw' readonly="true" value="Date">
+                        </div>
+                    </div>
+                    <br>
+                        <input type="button" class="btn btn-primary" value="Update" onclick="updateGraph();" 
+                               style="float: right;margin-bottom:20px;width: 150px;">
+                </div>
+            </aside>
+            <section class="main">
+                <h5 style="margin-top: 2vh; text-align: center">Rust Mites Report</h5>
+                <div class="chart-container" style="position: relative; height:40vh; width:70vw">
+                    <canvas id="myChart" width="400" height="200"></canvas>
+                </div>
+            </section>
+    </div>
+
+<script type="text/javascript">
+    var picker = new Pikaday(
+    {
+        field: document.getElementById('startDate'),
+        firstDay: 1,
+        minDate: new Date(2000, 0, 1),
+        format: 'MM/DD/YYYY',
+        yearRange: [2000,2030]
+    });
+    var picker2 = new Pikaday(
+        {
+            field: document.getElementById('endDate'),
+            firstDay: 1,
+            minDate: new Date(2000, 0, 1),
+            format: 'MM/DD/YYYY',
+            yearRange: [2000,2030]
+        });
+    var picker3 = new Pikaday(
+    {
+        field: document.getElementById('graphStartDate'),
+        firstDay: 1,
+        minDate: new Date(2000, 0, 1),
+        format: 'MM/DD/YYYY',
+        yearRange: [2000,2030]
+    });
+    var picker4 = new Pikaday(
+        {
+            field: document.getElementById('graphEndDate'),
+            firstDay: 1,
+            minDate: new Date(2000, 0, 1),
+            format: 'MM/DD/YYYY',
+            yearRange: [2000,2030]
+        });
+    
+</script>
+
+<!-- Autofills the current date in the date box -->
+<script type="text/javascript">
+    function getDate() {
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        
+        var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+        var dd2 = lastWeek.getDate();
+        var mm2 = lastWeek.getMonth()+1;
+        var yyyy2 = lastWeek.getFullYear();
+        if(dd<10) {
+            dd='0'+dd
+        } 
+        if(mm<10) {
+            mm='0'+mm
+        }
+        if(dd2<10) {
+            dd2='0'+dd2
+        } 
+        if(mm2<10) {
+            mm2='0'+mm2
+        } 
+        
+        today = mm+'/'+dd+'/'+yyyy;
+        lastWeek =  mm2+'/'+dd2+'/'+yyyy2;
+        document.getElementById("startDate").value = lastWeek;
+        document.getElementById("endDate").value = today;
+        document.getElementById("graphStartDate").value = lastWeek;
+        document.getElementById("graphEndDate").value = today;
+      }
+</script>
+
+<script type="text/javascript">
+    window.onload = function pageLoad(){
+        getDate();
+        fillData()
+    }
+</script>
+
+<script>
+    function fillData() {
+        var mitesData = {{ mites_json |safe }};
+        console.log(mitesData);
+        keys = Object.keys(mitesData);
+        for(var yy = 0; yy < keys.length; yy++) {
+            var blockIter = mitesData[keys[yy]].field_name
+            var dateIter = mitesData[keys[yy]].date
+            var lensFieldIter = mitesData[keys[yy]].lens_fields
+            var lowIter = mitesData[keys[yy]].low
+            var highIter = mitesData[keys[yy]].high
+            
+            var highPerIter = ((parseFloat(highIter) / parseFloat(lensFieldIter)) * 100).toFixed(1) + "%";
+            var lowPerIter = ((parseFloat(lowIter) / parseFloat(lensFieldIter)) * 100).toFixed(1) + "%";
+            var totalIterNum = ((parseInt(lowIter) + parseInt(highIter)) / parseFloat(lensFieldIter))
+            var totalIter = (((parseInt(lowIter) + parseInt(highIter)) / parseFloat(lensFieldIter)) * 100).toFixed(1) + "%";
+            if(totalIterNum < 0.13){
+                var ratingIter = "Low"
+            }
+            else if(totalIterNum < 0.2){
+                var ratingIter = "Mod"
+            }
+            else if(totalIterNum >= 0.2){
+                var ratingIter = "High"
+            }
+            var noteIter = mitesData[keys[yy]].notes
+            if(noteIter == null){
+                noteIter = ""
+            }
+            
+            // Insert a row in the table at row index 0
+            var myTable = document.getElementById("myTable").getElementsByTagName('tbody')[0]
+            var newRow = myTable.insertRow(myTable.rows.length);
+            newRow.setAttribute('id', yy) 
+            //newRow.setAttribute('style', "display: ''") 
+            if(ratingIter == "Mod"){
+                newRow.setAttribute('class', "warning")
+            }
+            if(ratingIter == "High"){
+                newRow.setAttribute('class', "danger")
+            }
+            // Insert a cell in the row at index 0
+            var newCell1 = newRow.insertCell(0);
+            var newCell2 = newRow.insertCell(1);
+            var newCell3 = newRow.insertCell(2);
+            var newCell4 = newRow.insertCell(3);
+            var newCell5 = newRow.insertCell(4);
+            var newCell6 = newRow.insertCell(5);
+            var newCell7 = newRow.insertCell(6);
+            var newCell8 = newRow.insertCell(7);
+            var newCell9 = newRow.insertCell(8);
+            var newCell10 = newRow.insertCell(9);
+            // Append a text node to the cell
+            var newBlock = document.createTextNode(blockIter);
+            var newDate = document.createTextNode(dateIter);
+            var newLens = document.createTextNode(lensFieldIter);
+            var newLow = document.createTextNode(lowIter);
+            var newLowPer = document.createTextNode(lowPerIter);
+            var newHigh = document.createTextNode(highIter);
+            var newHighPer = document.createTextNode(highPerIter);
+            var newTotal = document.createTextNode(totalIter);
+            var newRating = document.createTextNode(ratingIter);
+            var newNote = document.createTextNode(noteIter);
+            newCell1.appendChild(newBlock);
+            newCell2.appendChild(newDate);
+            newCell3.appendChild(newLens);
+            newCell4.appendChild(newLow);
+            newCell5.appendChild(newLowPer);
+            newCell6.appendChild(newHigh);
+            newCell7.appendChild(newHighPer);
+            newCell8.appendChild(newTotal);
+            newCell9.appendChild(newRating);
+            newCell10.appendChild(newNote);
+        }
+    }
+    
+    $(document).ready( function () {
+        $('#myTable').DataTable( {
+            scrollY:        '50vh',
+            scrollCollapse: true,
+            paging:         false,
+            dom: 'Bfrtip',
+            buttons: [
+                'excel', 'pdf', 'print'
+            ],
+            columnDefs: [
+                { "width": "3%", "targets": 0 },
+                { "width": "3%", "targets": 1 },
+                { "width": "3%", "targets": 2 },
+                { "width": "3%", "targets": 3 },
+                { "width": "3%", "targets": 4 },
+                { "width": "3%", "targets": 5 },
+                { "width": "3%", "targets": 6 },
+                { "width": "3%", "targets": 7 },
+                { "width": "3%", "targets": 8 }
+              ]
+        });
+    } );
+</script>
+
+<script>	
+    function updateDates() {
+        var old_tbody = document.getElementById('tbody1');
+        var new_tbody = document.createElement('tbody');
+        new_tbody.setAttribute('id', 'tbody1') 
+        old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
+        var datatable = $( '#myTable' ).DataTable();
+        datatable.destroy();
+        var startDate = document.getElementById("startDate").value
+        var endDate = document.getElementById("endDate").value
+        var flag = 'table'
+        
+        // Setting CSRF Token for AJAX POST Request
+        var name = 'csrftoken';
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        var csrftoken = cookieValue;
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        // Send all data and keys to backend via AJAX
+        $.ajax({
+            type: 'POST',
+            url: '/rust_mite_report',
+            data: {
+                'startDate': startDate,
+                'endDate': endDate,
+                'flag': flag
+            },
+            success: updateData,
+        }) 
+    }
+</script>
+        
+<script>	
+    function updateGraph() {
+        var graphStartDate = document.getElementById("graphStartDate").value
+        var graphEndDate = document.getElementById("graphEndDate").value
+        
+        // Get all selected values from radio buttons and dates, etc
+        var graphFieldRadios = document.getElementsByName('graphField');
+        for (var i = 0, length = graphFieldRadios.length; i < length; i++) {
+            if (graphFieldRadios[i].checked) {
+                // do whatever you want with the checked radio
+                var graphField = graphFieldRadios[i].value;
+                // only one radio can be logically checked, don't check the rest
+                break;
+            }
+        }
+        
+        var flag = 'graph'
+        // Setting CSRF Token for AJAX POST Request
+        var name = 'csrftoken';
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        var csrftoken = cookieValue;
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        // Send all data and keys to backend via AJAX
+        $.ajax({
+            type: 'POST',
+            url: '/rust_mite_report',
+            data: {
+                'graphStartDate': graphStartDate,
+                'graphEndDate': graphEndDate,
+                'graphField': graphField,
+                'flag': flag
+            },
+            success: reDrawLineChart,
+        }) 
+    }
+</script>
+
+<script>
+    function updateData(mites_data) {
+        var mitesData = mites_data
+        console.log(mitesData);
+        
+        keys = Object.keys(mitesData);
+        console.log(keys)
+        
+        var old_tbody = document.getElementById('tbody1');
+        var new_tbody = document.createElement('tbody');
+        new_tbody.setAttribute('id', 'tbody1') 
+        old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
+        var datatable = $( '#myTable' ).DataTable();
+        datatable.destroy();
+        for(var yy = 0; yy < keys.length; yy++) {
+            var blockIter = mitesData[keys[yy]].field_name
+            var dateIter = mitesData[keys[yy]].date
+            var lensFieldIter = mitesData[keys[yy]].lens_fields
+            var lowIter = mitesData[keys[yy]].low
+            var highIter = mitesData[keys[yy]].high
+            
+            var highPerIter = ((parseFloat(highIter) / parseFloat(lensFieldIter)) * 100).toFixed(1) + "%";
+            var lowPerIter = ((parseFloat(lowIter) / parseFloat(lensFieldIter)) * 100).toFixed(1) + "%";
+            var totalIterNum = ((parseInt(lowIter) + parseInt(highIter)) / parseFloat(lensFieldIter))
+            var totalIter = (((parseInt(lowIter) + parseInt(highIter)) / parseFloat(lensFieldIter)) * 100).toFixed(1) + "%";
+            if(totalIterNum < 0.13){
+                var ratingIter = "Low"
+            }
+            else if(totalIterNum < 0.2){
+                var ratingIter = "Mod"
+            }
+            else if(totalIterNum >= 0.2){
+                var ratingIter = "High"
+            }
+            var noteIter = mitesData[keys[yy]].notes
+            if(noteIter == null){
+                noteIter = ""
+            }
+            
+            if(blockIter==""){
+                yy++;
+                continue;
+            }
+            
+            // Insert a row in the table at row index 0
+            var myTable = document.getElementById("myTable").getElementsByTagName('tbody')[0]
+            var newRow = myTable.insertRow(myTable.rows.length);
+            newRow.setAttribute('id', yy) 
+            //newRow.setAttribute('style', "display: ''") 
+            if(ratingIter == "Mod"){
+                newRow.setAttribute('class', "warning")
+            }
+            if(ratingIter == "High"){
+                newRow.setAttribute('class', "danger")
+            }
+            // Insert a cell in the row at index 0
+            var newCell1 = newRow.insertCell(0);
+            var newCell2 = newRow.insertCell(1);
+            var newCell3 = newRow.insertCell(2);
+            var newCell4 = newRow.insertCell(3);
+            var newCell5 = newRow.insertCell(4);
+            var newCell6 = newRow.insertCell(5);
+            var newCell7 = newRow.insertCell(6);
+            var newCell8 = newRow.insertCell(7);
+            var newCell9 = newRow.insertCell(8);
+            var newCell10 = newRow.insertCell(9);
+            // Append a text node to the cell
+            var newBlock = document.createTextNode(blockIter);
+            var newDate = document.createTextNode(dateIter);
+            var newLens = document.createTextNode(lensFieldIter);
+            var newLow = document.createTextNode(lowIter);
+            var newLowPer = document.createTextNode(lowPerIter);
+            var newHigh = document.createTextNode(highIter);
+            var newHighPer = document.createTextNode(highPerIter);
+            var newTotal = document.createTextNode(totalIter);
+            var newRating = document.createTextNode(ratingIter);
+            var newNote = document.createTextNode(noteIter);
+            newCell1.appendChild(newBlock);
+            newCell2.appendChild(newDate);
+            newCell3.appendChild(newLens);
+            newCell4.appendChild(newLow);
+            newCell5.appendChild(newLowPer);
+            newCell6.appendChild(newHigh);
+            newCell7.appendChild(newHighPer);
+            newCell8.appendChild(newTotal);
+            newCell9.appendChild(newRating);
+            newCell10.appendChild(newNote);
+        }
+        $('#myTable').DataTable( {
+            scrollY:        '50vh',
+            scrollCollapse: true,
+            paging:         false,
+            dom: 'Bfrtip',
+            buttons: [
+                'excel', 'pdf', 'print'
+            ]
+        });
+        
+    }
+    
+</script>
+        
+<script>
+drawLineChart();
+function drawLineChart(){
+    var element = document.getElementById("myChart");
+    var parent = element.parentNode
+    element.parentNode.removeChild(element);
+    var canvas = document.createElement('canvas');
+    canvas.id = "myChart";
+    canvas.width  = 400;
+    canvas.height = 200;
+    parent.appendChild(canvas)
+   
+    // Then go through the django JSON line chart query data and pull out the the selected field and element
+    var lineData = {{mites_history_json |safe}}
+    var dateList = [];
+    var valueList = [];
+    var lensIter = ''
+    var lowIter = ''
+    var highIter = ''
+    var selectedElement = lineData[0][0]
+    //alert(lineData);
+    i=0;
+    while (i < lineData.length) {
+        lensIter = lineData[i][2]
+        lowIter = lineData[i][3]
+        highIter = lineData[i][4]
+        dateList.push(lineData[i][1]);
+        perIter = (parseFloat(lowIter) + parseFloat(highIter)) / parseFloat(lensIter)
+        valueList.push(perIter);
+        i++;
+    }
+    
+    i=0
+    var lineData = []
+    // Next create an array of xy pair objects, the data format that chart.js accepts for scatter charts
+    while (i < dateList.length) {
+        var newObj = {x: dateList[i], y: valueList[i]};
+        lineData.push(newObj);
+        i++;
+    }
+    //alert(lineData.toSource())
+    var ctx = document.getElementById("myChart").getContext('2d');
+    if (myLineChart != null) {
+        myLinechart.data.labels = slectedElement;
+        myLinechart.data.datasets[0].data = lineData;
+        myLineChart.update();
+    }
+    else {
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: selectedElement,
+                    data: lineData,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                    ],
+                    borderWidth: 3,
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)'
+                    ],
+                    fill: false,
+                    pointHitRadius: 20,
+
+                }]
+            },
+            options: {
+                duration: 2000,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+                    }],
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            displayFormats: {
+                                hour: 'MMM D'
+                        }
+                    }
+                    }]
+                },
+                showLine: true
+            }
+        });
+    }
+}
+</script>
+
+<script>
+function reDrawLineChart(mites_history_json){
+    console.log(mites_history_json)
+    // First tear down the old chart to avoid conflict
+    var element = document.getElementById("myChart");
+    var parent = element.parentNode
+    element.parentNode.removeChild(element);
+    var canvas = document.createElement('canvas');
+    canvas.id = "myChart";
+    canvas.width  = 400;
+    canvas.height = 200;
+    parent.appendChild(canvas)
+    // Then get selected field name and element
+    var fieldLineRadios = document.getElementsByName('lineField');
+    for (var i = 0, length = fieldLineRadios.length; i < length; i++) {
+        if (fieldLineRadios[i].checked) {
+            // do whatever you want with the checked radio
+            var selectedField = fieldLineRadios[i].value;
+            // only one radio can be logically checked, don't check the rest
+            break;
+        }
+    }
+    var lineElementRadios = document.getElementsByName('lineElement');
+    for (var i = 0, length = lineElementRadios.length; i < length; i++) {
+        if (lineElementRadios[i].checked) {
+            // do whatever you want with the checked radio
+            var selectedElement = lineElementRadios[i].value;
+            // only one radio can be logically checked, don't check the rest
+            break;
+        }
+    }
+    
+    // Then go through the django JSON line chart query data and pull out the the selected field and element
+    var lineDataJson = JSON.parse(mites_history_json)
+    var dateList = [];
+    var valueList = [];
+    console.log(typeof lineDataJson)
+    console.log(mites_history_json)
+    var lensIter = ''
+    var lowIter = ''
+    var highIter = ''
+    i=0;
+    var selectedField = lineDataJson[i][0]
+    console.log(lineDataJson.length)
+    while (i < lineDataJson.length) {
+        lensIter = lineDataJson[i][2];
+        lowIter = lineDataJson[i][3];
+        highIter = lineDataJson[i][4];
+        dateList.push(lineDataJson[i][1]);
+        perIter = (parseFloat(lowIter) + parseFloat(highIter)) / parseFloat(lensIter);
+        valueList.push(perIter);
+        i++;
+    }
+    console.log(dateList)
+    console.log(valueList)
+    i=0
+    var lineData = []
+    // Next create an array of xy pair objects, the data format that chart.js accepts for scatter charts
+    while (i < dateList.length) {
+        var newObj = {x: dateList[i], y: valueList[i]};
+        lineData.push(newObj);
+        i++;
+    }
+    console.log(lineData)
+    //alert(lineData.toSource())
+    var ctx = document.getElementById("myChart").getContext('2d');
+    if (myLineChart != null) {
+        alert("here")
+        myLinechart.data.labels = selectedField;
+        myLinechart.data.datasets[0].data = lineData;
+        myLineChart.update();
+    }
+    else {
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: selectedField,
+                    data: lineData,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                    ],
+                    borderWidth: 3,
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)'
+                    ],
+                    fill: false,
+                    pointHitRadius: 20,
+
+                }]
+            },
+            options: {
+                duration: 2000,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+                    }],
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            displayFormats: {
+                                hour: 'MMM D'
+                        }
+                    }
+                    }]
+                },
+                showLine: true
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

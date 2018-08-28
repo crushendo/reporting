@@ -1,0 +1,133 @@
+{% extends 'base.html' %} 
+{% block title %}About - {{ block.super }}{% endblock %} 
+
+{% block header %}
+<style>
+    select {
+       margin-left: 1vw;
+    }
+</style>
+
+<style>
+    th, td {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<form enctype="multipart/form-data" method="POST" action="/labelle/leaf_input" onsubmit="return makeEdits();">
+    {% csrf_token %}
+    <script type="text/javascript"> 
+        var a = {{uncertain_name_list |safe}}
+        var b = {{guess_name_list |safe}}
+    </script>
+    {{ form.non_field_errors }}
+    {% if form.errors %}
+        <p>NOT VALID</p>
+        {% for errors in form.errors %}
+            {{ errors }}
+        {% endfor %}
+    {% endif %}
+    
+    <h5 style="margin:2vh; border-bottom: 1.5px solid grey">
+            &nbsp; Wait a second...
+    </h5>
+    
+    <p style="margin-left:4vh">
+        Some of the information you uploaded doesn't match your sample list. Check to make sure these corrections look good.
+    </p>
+ 
+    <table style="width:60%;" align="center">
+    {% for obj in uncertain_objs %}
+        <tr>
+            <td style="width:40%;">
+                {{ obj.field_name }}
+            </td>
+            <td>
+                <p><i class="right">⇛</i></p>
+            </td>
+            <td style="width:40%;">
+                <select id="{{ obj.id }}" name="{{ obj.id }}" onchange="fieldChange(this.id, this.value);">
+                    {% for obj2 in uncertain_objs %}
+                        {% if obj2 == obj %}
+                            <option value="{{ obj2.guess }}" selected>{{ obj2.guess }}</option>
+                        {% else %}
+                            <option value="{{ obj2.guess }}">{{ obj2.guess }}</option>
+                        {% endif %}
+                    {% endfor %}
+                    <option value="new">New Field</option>
+                </select>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+    
+    <br>
+    <input type="submit" class="btn btn-primary" value="Submit" style="float: right;margin-right:10%;width: 150px;">
+    <br> 
+     <p hidden>
+        {{ formset }}
+    </p>
+</form>  
+
+<script type="text/javascript"> 
+    var a = {{uncertain_name_list |safe}}
+    var b = {{guess_name_list |safe}}
+    var c = {{uncertain_objs |safe}}
+</script>
+
+<script>
+    function fieldChange(changeId, changeValue){
+        console.log(changeValue)
+        console.log(changeId)
+        //var changeValue = document.getElementById(changeId).value;
+        var changeElement = document.getElementById(changeId);
+        if(changeValue == 'new'){
+            console.log("here")
+            var newBox = document.createElement("input");
+            newBox.setAttribute('type', 'text');
+            var boxId = changeId + "box"
+            newBox.setAttribute('id', boxId);
+            changeElement.parentElement.appendChild(newBox);
+        }
+        else{
+            var boxId = changeId + "box";
+            var boxEle = document.getElementById(boxId);
+            boxEle.parentNode.removeChild(boxEle);
+        }
+}
+</script>
+
+<script type="text/javascript">
+    function makeEdits() {
+        //alert("function working");
+        var uncertainNameList = {{uncertain_name_list |safe}};
+        var uncertainNum = uncertainNameList.length;
+        //alert(uncertainNum)
+        var i = 0;
+        while(i < uncertainNum) {
+            formGuessId = "id_form-" + i.toString() + "-guess";
+            formFieldId = "id_form-" + i.toString() + "-field_name";
+            formIdId = "id_form-" + i.toString() + "-id";
+            var selectedId = document.getElementById(formIdId).value;
+            //alert(selectedId)
+            var selectedName = document.getElementById(selectedId).value;
+            if(selectedName == "new"){
+                var newId = selectedId + "box"
+                var selectedName = document.getElementById(newId).value;
+            }
+            //alert(selectedName)
+            var oldValue = document.getElementById(formFieldId).value
+            //alert(oldValue)
+            document.getElementById(formFieldId).value = selectedName;
+            //alert(formFieldId)
+            document.getElementById(formGuessId).value = null;
+            i = i + 1;
+        }
+        
+    }
+</script>
+    
+{% endblock %}
