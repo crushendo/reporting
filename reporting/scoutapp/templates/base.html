@@ -15,7 +15,7 @@
         <meta name="author" content="">
         <link rel="icon" href="../../favicon.ico">
 
-        <title>Home | DUDA Scouter</title>
+        <title>{% block title %}{% endblock %}| DUDA Scouter</title>
         
         <link href="../../static/dist/css/flat-ui.min.css" rel="stylesheet">
         <link href="../../static/css/pikaday-desktop.css" rel="stylesheet">
@@ -41,7 +41,21 @@
         <script src="../../static/js/moment.js"></script>
         <script src="../../static/js/pikaday.js"></script>
         <script src="../../static/js/lightbox.js"></script>
-      
+
+	<!-- Chart.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js" type="text/javascript"></script>
+       
+        <style>
+            .navbar-nav .open .dropdown-menu > li > a {
+                color: #ffffff !important;
+            }
+        </style>
+        
+        <style>
+            .navbar-nav .open .dropdown-menu > li > a:hover {
+                color: #1abc9c !important;
+            }
+        </style>
         
         {% block header %}{% endblock %}
     </head>
@@ -66,9 +80,11 @@
                                     <li class="dropdown-header">Scout</li>
                                     <li><a href="/labelle/scouting/young">Young Trees</a></li>
                                     <li><a href="/labelle/scouting/mature">Mature Trees</a></li>
+                                    <li><a href="/labelle/scouting/rust_mites">Rust Mites</a></li>
                                     <li role="separator" class="divider"></li>
                                     <li class="dropdown-header">Other Links</li>
 				    <li><a href="/labelle/spray_input">Spray Trial</a></li>
+                                    <li><a href="/labelle/leaf_input">Leaf Samples</a></li>
                                     <li><a href="/labelle/wps">WPS</a></li>
                                 </ul>
                             </li>
@@ -79,11 +95,20 @@
                                     <li class="dropdown-header">Report</li>
                                     <li><a href="/report">Psyllids</a></li>
                                     <li><a href="/spray_report">Spray Trials</a></li>
+                                    <li><a href="/leaf_report">Leaf Samples</a></li>
+                                    <li><a href="/rust_mite_report">Rust Mites</a></li>
                                 </ul>
                             </li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
-                            <li><a href="/about">About</a></li>
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#"> Manage <b class="caret"></b></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li class="dropdown-header">Manage</li>
+                                    <li><a href="/manage">Labelle</a></li>
+                                </ul>
+                            </li>
+                           
                             {% if user.is_authenticated %}
                                 <li><a> Welcome,&nbsp; {{user.username}}!</a></li>
                                 <li><a href="/accounts/logout">Log Out</a></li>
@@ -140,7 +165,7 @@
         </style>
         
         <style>
-        .btn {
+        .btn-primary {
             background-color: #006dcc;
             *background-color: #0044cc;
             background-image: none;

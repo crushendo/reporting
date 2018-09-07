@@ -1,0 +1,327 @@
+{% extends 'base.html' %} 
+{% block title %} Rust Mites {{ block.super }}{% endblock %} 
+
+{% block header %}
+<header>
+    <style>
+        p{
+            font-size: 5vw;
+            text-align: center; 
+        }
+    </style>
+    
+    <style>
+        #TAD{
+        width: 150px;
+        margin-top: 8vh;
+        margin-right: 3%;
+        }    
+    </style>
+    
+    <style>
+        #TAD1 {
+            height: 19vh;
+            display: table-cell;
+            margin-left: 3%;
+            vertical-align: middle;
+            margin-top: 3vh;
+            width:80px;
+            line-height: 6vh;
+            
+        }
+    </style>
+    
+    <style>
+        #container{
+            margin-top: 2%;
+            width: 90vw;
+            height: 25vh;
+            
+        }
+    </style>
+    
+     <style>
+        .checkbox{
+            margin-left: 20vw; !important
+            
+        }
+    </style>
+    
+    <style>
+        label{
+            font-size: 6vw; 
+            text-align: center;
+        }
+    </style>
+    
+    <style>
+        .btn-default, .btn-default:hover, .btn-default:focus,  .btn-default.active, .open>.dropdown-toggle.btn-default {
+            color: none;
+            background-color: none;
+            background-image: none;
+            appearance: none;
+            box-shadow: none;
+            border-color: none; /*set the color you want here*/
+        }
+    </style>
+    
+    
+</header>
+{% endblock %}
+
+{% block content %}
+    
+<h3 style="text-align:center"> Rust Mites </h3>
+
+<form method="POST" id="dataForm" action="/labelle/scouting/rust_mites" onsubmit="return errorHandle()">
+    {% csrf_token %}
+    <!--Date-->
+    <h5 style="margin-bottom:0.5vh">
+        &nbsp; Date:
+    </h5>
+    <div class="container" style="margin-left:0%;">
+        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="width:50vw;margin-top:1vh;position:relative;float:left;">
+            <input type="text" id="datepicker" name="datepicker" style='width:45vw;' readonly="true" value="Date">
+        </div>
+    </div>
+
+
+    <div>
+        <h5> &nbsp; Area:</h5>    
+        &nbsp;&nbsp;&nbsp;&nbsp; <select id="SelectArea" name="SelectArea" onchange="getSelection1(this.value)" > 
+            <option value="Select a Category" selected="selected"> Select an Area </option>
+            {% for location in locations_list %}
+                <option value="{{location}}"> {{ location }} </option>
+            {% endfor %}
+        </select> 
+    </div>
+
+    <div>
+        <h5> &nbsp; Field: </h5>   
+        &nbsp;&nbsp;&nbsp;&nbsp; <select id="SelectField" name="SelectField"> 
+            <option value="Select a Field"> Select a Field </option>
+        </select>
+    </div>
+
+
+    <div class="container" style="border-style: solid;" id="container">
+        <span id="TAD1" style="float:left;display:inline-block;display:inline-block;"> Total Lens Fields: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </span>
+        <span id="TAD" class="input-group pull-right" style="float:left;width:34vw;margin-top:9vh;">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default btn-number" style="padding:0;width:12vw;height:6vh;" data-type="minus" data-field="lensFields" step="10">
+                  <span class="glyphicon glyphicon-minus"></span>
+                </button>
+            </span>
+            <input id="lensFields" type="tel" name="lensFields" class="form-control input-number" value="30" min="0" max="100" step="10" style="text-align:center;height:6vh;padding:0" onclick="this.value=''">
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default btn-number" style="padding:0;width:12vw;height:6vh" data-type="plus" data-field="lensFields" step="10">
+                  <span class="glyphicon glyphicon-plus"></span>
+              </button>
+            </span>
+        </span>
+    </div>
+    <br>
+    <div class="container" style="border-style: solid;" id="container">
+        <span id="TAD1" style="float:left;display:inline-block;display:inline-block;"> Total Low: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </span>
+        <span id="TAD" class="input-group pull-right" style="float:left;width:34vw;margin-top:9vh">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default btn-number" style="padding:0;width:12vw;height:6vh" data-type="minus" data-field="lowMites" step="1">
+                  <span class="glyphicon glyphicon-minus"></span>
+                </button>
+            </span>
+            <input id="lowMites" type="tel" name="lowMites" class="form-control input-number" value="0" min="0" max="100" step="1" style="text-align:center;height:6vh;padding:0" onclick="this.value=''">
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default btn-number" style="padding:0;width:12vw;height:6vh" data-type="plus" data-field="lowMites" step="1">
+                  <span class="glyphicon glyphicon-plus"></span>
+              </button>
+          </span>
+        </span>
+    </div>
+    <br>
+    <div class="container" id="container" style="border-style: solid;">
+        <span id="TAD1" style="float:left;display:inline-block;"> Total High: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </span>
+        <span id="TAD" class="input-group pull-right" style="float:left;width:34vw;margin-top:9vh">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default btn-number" style="padding:0;width:12vw;height:6vh" data-type="minus" data-field="highMites" step="1">
+                  <span class="glyphicon glyphicon-minus"></span>
+                </button>
+            </span>
+            <input id="highMites" type="tel" name="highMites" class="form-control input-number" value="0" min="0" max="100" step="1" style="text-align:center;height:6vh;padding:0" onclick="this.value=''">
+            <span class="input-group-btn">
+              <button type="button" class="btn btn-default btn-number" style="padding:0;width:12vw;height:6vh" data-type="plus" data-field="highMites" step="1">
+                  <span class="glyphicon glyphicon-plus"></span>
+              </button>
+          </span>
+        </span>
+    </div>
+
+    <div class="container">
+        <label  style="text-align:left;width:90vw">Notes: 
+
+            <textarea class="form-control" name="notes" rows="3" cols="10" placeholder="(Optional)"></textarea>
+
+        </label>
+    </div>
+
+    <br>
+
+    <div class="container">
+    <input type="submit" class="btn btn-primary" value="Submit" style="float: right;margin-right:5%;width: 150px;">
+
+    <input type="button" onclick="location.href = '/';" class="btn btn-primary" value="Cancel" style="float: right;margin-right:5%;width: 150px;">
+    </div>
+    <p> &nbsp; </p>
+
+</form>
+<!-- Controlls +/- boxes for the number input -->
+<script>
+    //plugin bootstrap minus and plus
+    //http://jsfiddle.net/laelitenetwork/puJ6G/
+    $('.btn-number').click(function(e){
+        e.preventDefault();
+        fieldName = $(this).attr('data-field');
+        type      = $(this).attr('data-type');
+        var input = $("input[name='"+fieldName+"']");
+        var currentVal = parseInt(input.val());
+        stepInc = parseInt($(this).attr('step'));
+        //alert(stepInc);
+        if (!isNaN(currentVal)) {
+            if(type == 'minus') {
+                if(currentVal > input.attr('min')) {
+                    input.val(currentVal - stepInc).change();
+                } 
+                if(parseInt(input.val()) == input.attr('min')) {
+                    $(this).attr('disabled', true);
+                }
+            } else if(type == 'plus') {
+                if(currentVal < input.attr('max')) {
+                    input.val(currentVal + stepInc).change();
+                }
+                if(parseInt(input.val()) == input.attr('max')) {
+                    $(this).attr('disabled', true);
+                }
+            }
+        } else {
+            input.val(0);
+        }
+    });
+    $('.input-number').focusin(function(){
+       $(this).data('oldValue', $(this).val());
+    });
+    $('.input-number').change(function() {
+        minValue =  parseInt($(this).attr('min'));
+        maxValue =  parseInt($(this).attr('max'));
+        valueCurrent = parseInt($(this).val());
+        name = $(this).attr('name');
+        if(valueCurrent >= minValue) {
+            $(".btn-number[data-type='minus'][data-field='"+name+"']").removeAttr('disabled')
+        } else {
+            alert('Sorry, the minimum value was reached');
+            $(this).val($(this).data('oldValue'));
+        }
+        if(valueCurrent <= maxValue) {
+            $(".btn-number[data-type='plus'][data-field='"+name+"']").removeAttr('disabled')
+        } else {
+            alert('Sorry, the maximum value was reached');
+            $(this).val($(this).data('oldValue'));
+        }
+    });
+    $(".input-number").keydown(function (e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 190]) !== -1 ||
+                 // Allow: Ctrl+A
+                (e.keyCode == 65 && e.ctrlKey === true) || 
+                 // Allow: home, end, left, right
+                (e.keyCode >= 35 && e.keyCode <= 39)) {
+                     // let it happen, don't do anything
+                     return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+    });
+</script> 
+
+<!-- JS for Pikaday https://github.com/dbushell/Pikaday, uses js, css, and moment.js -->
+<script>
+    var picker = new Pikaday(
+    {
+        field: document.getElementById('datepicker'),
+        firstDay: 1,
+        minDate: new Date(2000, 0, 1),
+        format: 'MM/DD/YYYY',
+        yearRange: [2000,2020]
+    });
+</script>
+
+<script>
+    function getDate() {
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        if(dd<10) {
+            dd='0'+dd
+        } 
+        if(mm<10) {
+            mm='0'+mm
+        } 
+        today = mm+'/'+dd+'/'+yyyy;
+        document.getElementById("datepicker").value = today;
+      }
+</script>
+
+<script type="text/javascript">
+    window.onload = function pageLoad(){
+        getDate();
+        document.getElementById('SelectArea').value="Select a Category";
+    }
+</script>
+
+<script type="text/javascript">
+    function getSelection1(location) {
+        document.getElementById("SelectField").options.length = 0;
+        var fieldsDict = {{fields_json | safe }};
+        console.log(typeof(fieldsDict));
+        console.log(location);
+        var fieldsList = fieldsDict[location];
+        var select = document.getElementById('SelectField');
+        select.options[select.options.length] = new Option("Select a Field", "Select a Field");
+        for(var ii = 0; ii < fieldsList.length; ii++){
+            fieldOption = fieldsList[ii];
+            if (fieldOption == ""){
+                continue;
+            }
+            select.options[select.options.length] = new Option(fieldOption, fieldOption);
+        };  
+    }
+</script>
+
+<script>
+function errorHandle() {
+    var selection = document.getElementById("SelectField").value;
+    var lensFields = document.getElementById("lensFields").value;
+    var lowMites = document.getElementById("lowMites").value;
+    var highMites = document.getElementById("highMites").value;
+    if(String(selection) == "Select a Field") {
+        alert("Please select a field.");
+        return false;
+    }
+    if (lensFields == ""){
+        alert("Please enter a valid number for Lens Fields.");
+        return false;
+    }
+    if (lowMites == ""){
+        alert("Please enter a valid number for Total Low.");
+        return false;
+    }
+    if (highMites == ""){
+        alert("Please enter a valid number for Total High.");
+        return false;
+    }
+}
+</script>
+    
+
+{% endblock %}

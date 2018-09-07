@@ -1,0 +1,1509 @@
+{% extends 'base.html' %} 
+{% block title %}About - {{ block.super }}{% endblock %} 
+
+{% block header %}
+<style>
+    .ui-datepicker-calendar {
+        display: none;
+     }
+    .wrapper {
+        display: grid;
+
+        /*  Define the size and number of columns in our grid. 
+        The fr unit works similar to flex:
+        fr columns will share the free space in the row in proportion to their value.
+        We will have 2 columns - the second will be 3x the size of the first.  */
+        grid-template-columns: 25vw 3fr;
+
+        /*  Assign the grid areas we did earlier to specific places on the grid. 
+            First row is all header.
+            Second row is shared between main and sidebar.
+            Last row is all footer.  */
+        grid-template-areas: 
+            "header header"
+            "sidebar main"
+
+        /*  The gutters between each grid cell will be 60 pixels. */
+        grid-gap: 60px;
+        grid-auto-rows: minmax(100px, auto);
+        }
+   
+    .main {
+        grid-area: main;
+        grid-column: 2;
+        margin-right: 5vw;
+        margin-left: 3vw;
+        grid-row: 1
+    }
+    .sidebar {
+        grid-area: sidebar;
+        grid-column: 1;
+        grid-row: 1
+    }
+    footer {
+        grid-area: footer;
+</style>
+
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+    tr:nth-child(even) {
+        background-color: #e6e6e6;
+    }
+    tr:hover {background-color: #d9e6f2}
+}
+</style>
+
+<style>
+    .smallContainer { border:2px solid #ccc; height: 100px; overflow-y: scroll; };
+</style>
+
+<style>
+    .bigContainer { border:2px solid #ccc; height: 250px; overflow-y: scroll; };
+</style>
+
+{% endblock %}
+{% block content %}
+
+
+{% csrf_token %}
+<ul class="nav nav-tabs" role="tablist">
+    <li class="active"><a id="tab1" href="#chart1" role="tab" data-toggle="tab">Leaf Content</a></li>
+    <li><a id="tab2" href="#chart2" role="tab" data-toggle="tab">Element Analysis</a></li>
+    <li><a id="tab3" href="#chart3" role="tab" data-toggle="tab">Sufficiency Range</a></li>
+    <li><a id="tab4" href="#chart4" role="tab" data-toggle="tab">Comparison</a></li>
+    <!-- <li><a id="tab5" href="#chart5" role="tab" data-toggle="tab">Groups</a></li>-->
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane active" id="chart1">
+        <div class="wrapper"> 
+            <aside class="sidebar" style="margin-left: 0.5vw">
+                <h3 style="text-align: center">Filter</h3>
+                <div>
+                    <h6>Field:</h6>
+                    <div class="bigContainer">
+                        <form id="barField">
+                            {% for field in fields_distinct %}
+                                <input type="radio" name="barField" value="{{field}}" > {{ field }} <br/>
+                            {% endfor %}
+                        </form>
+                    </div>
+                    <h6 style="margin-bottom:0.5vh">Sample Date: </h6>
+                    <div class="container" style="width:100%">
+                        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="margin-top:1vh;position:relative;float:left;">
+                            <input id="contentDate" style="width:100%" type="text" name="myDate" class="monthYearPicker" >
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <input type="button" class="btn btn-primary" value="Update" onclick="updateContent();" 
+                       style="float: right;margin-bottom:20px;width: 150px;">
+            </aside>
+            <section class="main">
+                <header>
+                    <h3 style="text-align: center">Leaf Tissue Content</h3>
+                </header>
+                <div class="chart-container" style="position: relative; height:40vh; width:70vw">
+                    <canvas id="myChart" width="400" height="200"></canvas>
+                </div>
+            </section>
+        </div>
+    </div>
+    <div class="tab-pane" id="chart2">
+        <div class="wrapper"> 
+            <aside class="sidebar"  style="margin-left: 0.5vw">
+                <h3 style="text-align: center">Filter</h3>
+                <div>
+                    <h6>Field:</h6>
+                    <div class="smallContainer">
+                        <form id="lineField">
+                            {% for field in fields_distinct %}
+                                <input type="radio" name="lineField" value="{{field}}" > {{ field }} <br/>
+                            {% endfor %}
+                        </form>
+                    </div>
+                    <h6>Element:</h6>
+                    <div class="smallContainer">
+                        <form id="lineElement">
+                            {% for element in elements_distinct %}       
+                                <input type="radio" name="lineElement" value="{{element}}" > {{ element }} <br />
+                            {% endfor %}
+                        </form>
+                    </div>
+                    <h6 style="margin-bottom:0.5vh">Start Date: </h6>
+                    <div class="container" style="margin-left:0%;">
+                        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="width:15vw;margin-top:1vh;position:relative;float:left;">
+                            <input type="text" id="lineStartDate" name="lineStartDate" style='width:20vw' readonly="true" value="Date">
+                        </div>
+                    </div>
+                    <h6 style="margin-bottom:0.5vh">End Date:</h6>
+                    <div class="container" style="margin-left:0%;">
+                        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="width:15vw;margin-top:1vh;position:relative;float:left;">
+                            <input type="text" id="lineEndDate" name="lineEndDate" style='width:20vw' readonly="true" value="Date">
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <input type="button" class="btn btn-primary" value="Update" onclick="updateElement();" 
+                       style="float: right;margin-bottom:20px;width: 150px;">
+            </aside>
+            <section class="main">
+                <header>
+                    <h3 style="text-align: center">Element Analysis</h3>
+                </header>
+                <div class="chart-container" style="position: relative; height:40vh; width:70vw">
+                    <canvas id="myChart2" width="400" height="200"></canvas>
+                </div>
+            </section>
+        </div>
+    </div>
+    <div class="tab-pane" id="chart3">
+        <div class="wrapper"> 
+            <aside class="sidebar" style="margin-left: 0.5vw">
+                <h3 style="text-align: center">Filter</h3>
+                <div>
+                    <h6>Field: </h6>
+                    <div class="bigContainer">
+                        <form id="suffField">
+                            {% for field in fields_distinct %}
+                                <input type="radio" name="suffField" value="{{field}}" > {{ field }} <br/>
+                            {% endfor %}
+                        </form>
+                    </div>
+                    <h6 style="margin-bottom:0.5vh">Sample Date: </h6>
+                    <div class="container" style="width:100%">
+                        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="margin-top:1vh;position:relative;float:left;">
+                            <input id="suffDate" style="width:100%" type="text" name="myDate" class="monthYearPicker" >
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <input type="button" class="btn btn-primary" value="Update" onclick="updateSuff();" 
+                       style="float: right;margin-bottom:20px;width: 150px;">
+            </aside>
+            <section class="main">
+                <header>
+                    <h3 style="text-align: center">Sufficiency Range Analysis</h3>
+                </header>
+                <div class="chart-container" style="position: relative; height:40vh; width:70vw">
+                    <canvas id="myChart3" ></canvas>
+                </div>
+            </section>
+        </div>
+    </div>
+    <div class="tab-pane" id="chart4">
+        <div class="wrapper"> 
+            <aside class="sidebar" style="margin-left: 0.5vw">
+                <h3 style="text-align: center">Filter</h3>
+                <div>
+                    <h6>Field: </h6>
+                    <div class="bigContainer">
+                        <form id="comField">
+                            {% for field in fields_distinct %}
+                                <input type="checkbox" name="comField" value="{{field}}" > {{ field }} <br/>
+                            {% endfor %}
+                        </form>
+                    </div>
+                    <h6 style="margin-bottom:0.5vh">Sample Date: </h6>
+                    <div class="container" style="width:100%">
+                        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="margin-top:1vh;position:relative;float:left;">
+                            <input id="comDate" style="width:100%" type="text" name="myDate" class="monthYearPicker" >
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <input type="button" class="btn btn-primary" value="Update" onclick="updateCom();" 
+                       style="float: right;margin-bottom:20px;width: 150px;">
+            </aside>
+            <section class="main">
+                <header>
+                    <h3 style="text-align: center">Comparison</h3>
+                </header>
+                <div class="chart-container" style="position: relative; height:40vh; width:70vw">
+                    <canvas id="myChart4" ></canvas>
+                </div>
+            </section>
+        </div>
+    </div>
+    <div class="tab-pane" id="chart5">
+        <div class="wrapper"> 
+            <aside class="sidebar" style="margin-left: 0.5vw">
+                <h3 style="text-align: center">Filter</h3>
+                <div>
+                    <h6>Irrigation Type: </h6>
+                    <div class="smallContainer">
+                        <form id="comField">
+                            {% for field in fields_distinct %}
+                                <input type="checkbox" name="comField" value="{{field}}" > {{ field }} <br/>
+                            {% endfor %}
+                        </form>
+                    </div>
+                    <h6>Tree Type: </h6>
+                    <div class="smallContainer">
+                        <form id="comField">
+                            {% for field in fields_distinct %}
+                                <input type="checkbox" name="comField" value="{{field}}" > {{ field }} <br/>
+                            {% endfor %}
+                        </form>
+                    </div>
+                    <h6>Remove Fields: </h6>
+                    <div class="smallContainer">
+                        <form id="comField">
+                            {% for field in fields_distinct %}
+                                <input type="checkbox" name="comField" value="{{field}}" > {{ field }} <br/>
+                            {% endfor %}
+                        </form>
+                    </div>
+                    <h6 style="margin-bottom:0.5vh">Sample Date: </h6>
+                    <div class="container" style="width:100%">
+                        <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="margin-top:1vh;position:relative;float:left;">
+                            <input id="comDate" style="width:100%" type="text" name="myDate" class="monthYearPicker" >
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <input type="button" class="btn btn-primary" value="Update" onclick="updateCom();" 
+                       style="float: right;margin-bottom:20px;width: 150px;">
+            </aside>
+            <section class="main">
+                <header>
+                    <h3 style="text-align: center">Comparison</h3>
+                </header>
+                <div class="chart-container" style="position: relative; height:40vh; width:70vw">
+                    <canvas id="myChart4" ></canvas>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script>
+drawBarChart();
+function drawBarChart() {
+    var lineData = {{element_year_json |safe}};
+    var recentData = '{{recent_data_json |safe | escapejs }}';
+    var stringData = console.log(JSON.stringify(recentData, null, 4));
+    parsedData = JSON.parse(recentData);
+    console.log(parsedData[0].fields)
+    
+    var barDataPercent = [];
+    var barDataPpm = [null,0,0,0,0,0]
+    barDataPercent.push(parsedData[0].fields.nitrogen)
+    barDataPercent.push(parsedData[0].fields.phosphorus)
+    barDataPercent.push(parsedData[0].fields.potassium)
+    barDataPercent.push(parsedData[0].fields.magnesium)
+    barDataPercent.push(parsedData[0].fields.calcium)
+    barDataPercent.push(parsedData[0].fields.sulfur)
+    barDataPpm.push(parsedData[0].fields.boron)
+    barDataPpm.push(parsedData[0].fields.zinc)
+    barDataPpm.push(parsedData[0].fields.manganese)
+    barDataPpm.push(parsedData[0].fields.iron)
+    barDataPpm.push(parsedData[0].fields.copper)
+    barDataPpm.push(parsedData[0].fields.chloride)
+    
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Nitrogen', 'Phosphorus', 'Potassium', 'Magnesium', 'Calcium', 'Sulfur', 'Boron', 'Zinc', 
+                    'Manganese', 'Iron', 'Copper', 'Chloride'],
+            datasets: [
+                {
+                    label: 'Percent',
+                    data: barDataPercent,
+                    yAxisID: 'A',
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                    ],
+                    borderWidth: 1
+                },
+                {
+                    label: 'PPM',
+                    data: barDataPpm,
+                    yAxisID: 'B',
+                    backgroundColor: [
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                    ],
+                    borderWidth: 1
+                }
+            ],
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    id: 'A',
+                    type: 'linear',
+                    position: 'left',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Percent Dry Weight (%)'
+                    }
+                    
+                }, {
+                    id: 'B',
+                    type: 'linear',
+                    position: 'right',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Parts Per Million (PPM)'
+                    }
+                    
+             }]
+            }
+        }
+    });
+}
+</script>
+
+<script>
+drawLineChart();
+function drawLineChart(){
+    var element = document.getElementById("myChart2");
+    var parent = element.parentNode
+    element.parentNode.removeChild(element);
+    var canvas = document.createElement('canvas');
+    canvas.id = "myChart2";
+    canvas.width  = 400;
+    canvas.height = 200;
+    parent.appendChild(canvas)
+    // First get selected field name and element
+    var fieldLineRadios = document.getElementsByName('lineField');
+    for (var i = 0, length = fieldLineRadios.length; i < length; i++) {
+        if (fieldLineRadios[i].checked) {
+            // do whatever you want with the checked radio
+            var selectedField = fieldLineRadios[i].value;
+            // only one radio can be logically checked, don't check the rest
+            break;
+        }
+    }
+    var lineElementRadios = document.getElementsByName('lineElement');
+    for (var i = 0, length = lineElementRadios.length; i < length; i++) {
+        if (lineElementRadios[i].checked) {
+            // do whatever you want with the checked radio
+            var selectedElement = lineElementRadios[i].value;
+            // only one radio can be logically checked, don't check the rest
+            break;
+        }
+    }
+    
+    var element_string = selectedElement + "_year_json"
+    
+    // Then go through the django JSON line chart query data and pull out the the selected field and element
+    var lineData = {{element_year_json |safe}}
+    var dateList = [];
+    var valueList = [];
+    //alert(lineData);
+    i=0;
+    while (i < lineData.length) {
+        if (lineData[i][0] == selectedField) {     
+            dateList.push(lineData[i][1]);
+            valueList.push(lineData[i][2]);
+        }
+        i++;
+    }
+    
+    i=0
+    var lineData = []
+    // Next create an array of xy pair objects, the data format that chart.js accepts for scatter charts
+    while (i < dateList.length) {
+        var newObj = {x: dateList[i], y: valueList[i]};
+        lineData.push(newObj);
+        i++;
+    }
+    //alert(lineData.toSource())
+    var ctx = document.getElementById("myChart2").getContext('2d');
+    if (myLineChart != null) {
+        myLinechart.data.labels = slectedElement;
+        myLinechart.data.datasets[0].data = lineData;
+        myLineChart.update();
+    }
+    else {
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: selectedElement,
+                    data: lineData,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                    ],
+                    borderWidth: 3,
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)'
+                    ],
+                    fill: false,
+                    pointHitRadius: 20,
+
+                }]
+            },
+            options: {
+                duration: 2000,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+                    }],
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            displayFormats: {
+                                hour: 'MMM D'
+                        }
+                    }
+                    }]
+                },
+                showLine: true
+            }
+        });
+    }
+}
+</script>
+
+<script>
+drawSuffChart();
+function drawSuffChart() {
+    var recentData = {{ sufficiency_dict.nitrogen }};
+    console.log(recentData.field);
+    
+    var barData = [];
+    barData.push({{ sufficiency_dict.nitrogen }});
+    barData.push({{ sufficiency_dict.phosphorus }});
+    barData.push({{ sufficiency_dict.potassium }});
+    barData.push({{ sufficiency_dict.magnesium }});
+    barData.push({{ sufficiency_dict.calcium }});
+    barData.push({{ sufficiency_dict.sulfur }});
+    barData.push({{ sufficiency_dict.boron }});
+    barData.push({{ sufficiency_dict.zinc }});
+    barData.push({{ sufficiency_dict.manganese }});
+    barData.push({{ sufficiency_dict.iron }});
+    barData.push({{ sufficiency_dict.copper }});
+    barData.push({{ sufficiency_dict.chloride }});
+    var i = 0;
+    var labelString = "{{sufficiency_dict.field }}" + " , " + "{{sufficiency_dict.date }}";
+    
+    var ctx = document.getElementById("myChart3").getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Nitrogen', 'Phosphorus', 'Potassium', 'Magnesium', 'Calcium', 'Sulfur', 'Boron', 'Zinc', 
+                    'Manganese', 'Iron', 'Copper', 'Chloride'],
+            datasets: [
+                {
+                    label: labelString,
+                    data: barData,
+                    yAxisID: 'A',
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                    ],
+                    borderWidth: 1
+                },
+            ],
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    id: 'A',
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                        beginAtZero: true,
+                        max: 100,
+                        callback: function(value, index, values) {
+                            if(value == 10){
+                                return 'Deficient'
+                            } else if(value == 30){
+                                return 'Low'
+                            } else if(value == 50){
+                                return 'Optimum'
+                            } else if(value == 70){
+                                return 'High'
+                            } else if(value == 90){
+                                return 'Excessive'
+                            } else {
+                                return '';
+                            }
+                        }
+                    }   
+                }]
+            }
+        }
+    });
+    var ctx = document.getElementById("myChart3").getContext("2d");
+    
+    for (var j = 0; j < 12; j++) {
+        if(barData[j] < 20){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(255, 255, 255, 0.2)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(255, 255, 255, 1)';
+        } else if(barData[j] < 40){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(255, 255, 51, 0.4)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(255, 255, 51, 1)'; 
+        } else if(barData[j] < 60){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(0, 204, 0, 0.2)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(0, 204, 0, 1)';
+        } else if(barData[j] < 80){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(0, 102, 0, 0.2)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(0, 102, 0, 1)';
+        } else if(barData[j] <= 100){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(0, 224, 244, 0.4)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(0, 224, 244, 1)'; 
+        }
+        
+        myChart.update();
+    }
+    
+    //myChart.data.datasets[0].backgroundColor[1] = "green"; //bar 1
+    myChart.update(); //update the cahrt
+}
+
+
+</script>
+
+<script type="text/javascript">
+    var picker = new Pikaday(
+    {
+        field: document.getElementById('lineStartDate'),
+        firstDay: 1,
+        minDate: new Date(2000, 0, 1),
+        format: 'MM/DD/YYYY',
+        yearRange: [2000,2030]
+    });
+    var picker2 = new Pikaday(
+        {
+            field: document.getElementById('lineEndDate'),
+            firstDay: 1,
+            minDate: new Date(2000, 0, 1),
+            format: 'MM/DD/YYYY',
+            yearRange: [2000,2030]
+        });
+    var picker3 = new Pikaday(
+        {
+            field: document.getElementById('barStartDate'),
+            firstDay: 1,
+            minDate: new Date(2000, 0, 1),
+            format: 'MM/YYYY',
+            yearRange: [2000,2030]
+        });
+    var picker4 = new Pikaday(
+        {
+            field: document.getElementById('barEndDate'),
+            firstDay: 1,
+            minDate: new Date(2000, 0, 1),
+            format: 'MM/DD/YYYY',
+            yearRange: [2000,2030]
+        });
+</script>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/resources/demos/style.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+$( function() {
+$( "#datepicker" ).datepicker();
+} );
+</script>
+
+<script>
+      $(function() {
+        $('.monthYearPicker').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            showButtonPanel: true,
+            dateFormat: 'MM yy'
+        }).focus(function() {
+            var thisCalendar = $(this);
+            $('.ui-datepicker-calendar').detach();
+            $('.ui-datepicker-close').click(function() {
+    var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+    var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+    thisCalendar.datepicker('setDate', new Date(year, month, 1));
+            });
+        });
+    });
+</script>
+
+<!-- Autofills the current date in the date box -->
+<script type="text/javascript">
+    function getDate() {
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        var yyyy2 = today.getFullYear() - 1;
+        if(dd<10) {
+            dd='0'+dd
+        } 
+        if(mm<10) {
+            mm='0'+mm
+        } 
+        today = mm+'/'+dd+'/'+yyyy;
+        lastYear = mm+'/'+dd+'/'+yyyy2;
+        document.getElementById("lineStartDate").value = lastYear;
+        document.getElementById("lineEndDate").value = today;
+        document.getElementById("barStartDate").value = lastYear;
+        document.getElementById("barEndDate").value = today;
+      }
+</script>
+
+<script type="text/javascript">
+    window.onload = function pageLoad(){
+        getDate();
+    }
+</script>
+
+<script type="text/javascript">
+    function updateElement() {
+        //set flag for which graph is being updated
+        flag = "element"
+        
+        // Get all selected values from radio buttons and dates, etc
+        var fieldLineRadios = document.getElementsByName('lineField');
+        for (var i = 0, length = fieldLineRadios.length; i < length; i++) {
+            if (fieldLineRadios[i].checked) {
+                // do whatever you want with the checked radio
+                var selectedField = fieldLineRadios[i].value;
+                // only one radio can be logically checked, don't check the rest
+                break;
+            }
+        }
+        var lineElementRadios = document.getElementsByName('lineElement');
+        for (var i = 0, length = lineElementRadios.length; i < length; i++) {
+            if (lineElementRadios[i].checked) {
+                // do whatever you want with the checked radio
+                var selectedElement = lineElementRadios[i].value;
+                // only one radio can be logically checked, don't check the rest
+                break;
+            }
+        }
+        
+        var lineStartDate = document.getElementById('lineStartDate').value;
+        var lineEndDate = document.getElementById('lineEndDate').value;
+        
+        // Setting CSRF Token for AJAX POST Request
+        var name = 'csrftoken';
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        var csrftoken = cookieValue;
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        // Send all data and keys in localStorage to backend via AJAX
+        $.ajax({
+            type: 'POST',
+            url: '/leaf_report',
+            data: {
+                'selectedField': selectedField,
+                'selectedElement': selectedElement,
+                'lineStartDate': lineStartDate,
+                'lineEndDate': lineEndDate,
+                'flag': flag,
+            },
+            success: reDrawLineChart,
+        }) 
+    }
+</script>
+
+<script type="text/javascript">
+    function updateContent() {
+        //set flag for which graph is being updated
+        var flag = "content"
+        
+        // Get all selected values from radio buttons and dates, etc
+        var barFieldRadios = document.getElementsByName('barField');
+        for (var i = 0, length = barFieldRadios.length; i < length; i++) {
+            if (barFieldRadios[i].checked) {
+                // do whatever you want with the checked radio
+                var barSelectedField = barFieldRadios[i].value;
+                // only one radio can be logically checked, don't check the rest
+                break;
+            }
+        }
+
+        var barDate = document.getElementById('contentDate').value
+        
+        // Setting CSRF Token for AJAX POST Request
+        var name = 'csrftoken';
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        var csrftoken = cookieValue;
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        // Send all data and keys in localStorage to backend via AJAX
+        //alert(selectedField)
+        //alert(selectedElement)
+        //alert(lineStartDate)
+        //alert(lineEndDate)
+        $.ajax({
+            type: 'POST',
+            url: '/leaf_report',
+            data: {
+                'barSelectedField': barSelectedField,
+                'barDate': barDate,
+                'flag': flag
+            },
+            success: reDrawContentChart,
+        }) 
+    }
+</script>
+
+<script type="text/javascript">
+    function updateSuff() {
+        //set flag for which graph is being updated
+        var flag = "sufficiency"
+        
+        // Get all selected values from radio buttons and dates, etc
+        var suffFieldRadios = document.getElementsByName('suffField');
+        for (var i = 0, length = suffFieldRadios.length; i < length; i++) {
+            if (suffFieldRadios[i].checked) {
+                // do whatever you want with the checked radio
+                var suffSelectedField = suffFieldRadios[i].value;
+                // only one radio can be logically checked, don't check the rest
+                break;
+            }
+        }
+        var suffDate = document.getElementById('suffDate').value
+        
+        // Setting CSRF Token for AJAX POST Request
+        var name = 'csrftoken';
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        var csrftoken = cookieValue;
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        // Send all data and keys in localStorage to backend via AJAX
+        //alert(selectedField)
+        //alert(selectedElement)
+        //alert(lineStartDate)
+        //alert(lineEndDate)
+        $.ajax({
+            type: 'POST',
+            url: '/leaf_report',
+            data: {
+                'suffSelectedField': suffSelectedField,
+                'suffDate': suffDate,
+                'flag': flag
+            },
+            success: reDrawSuffChart,
+        }) 
+    }
+</script>
+
+<script type="text/javascript">
+    function updateCom() {
+        //set flag for which graph is being updated
+        var flag = "comparison"
+        
+        // Get all selected values from radio buttons and dates, etc
+        var comFieldChecks = document.getElementsByName('comField');
+        comFieldList = []
+        for (var i = 0, length = comFieldChecks.length; i < length; i++) {
+            if (comFieldChecks[i].checked) {
+                comFieldList.push(comFieldChecks[i].value)
+            }
+        }
+        var comDate = document.getElementById('comDate').value
+        
+        // Setting CSRF Token for AJAX POST Request
+        var name = 'csrftoken';
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        var csrftoken = cookieValue;
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        // Send all data and keys to backend via AJAX
+        $.ajax({
+            type: 'POST',
+            url: '/leaf_report',
+            data: {
+                'comFieldList': comFieldList,
+                'comDate': comDate,
+                'flag': flag
+            },
+            success: reDrawComChart,
+        }) 
+    }
+</script>
+
+<script>
+function reDrawLineChart(element_year_json){
+    console.log(element_year_json)
+    // First tear down the old chart to avoid conflict
+    var element = document.getElementById("myChart2");
+    var parent = element.parentNode
+    element.parentNode.removeChild(element);
+    var canvas = document.createElement('canvas');
+    canvas.id = "myChart2";
+    canvas.width  = 400;
+    canvas.height = 200;
+    parent.appendChild(canvas)
+    // Then get selected field name and element
+    var fieldLineRadios = document.getElementsByName('lineField');
+    for (var i = 0, length = fieldLineRadios.length; i < length; i++) {
+        if (fieldLineRadios[i].checked) {
+            // do whatever you want with the checked radio
+            var selectedField = fieldLineRadios[i].value;
+            // only one radio can be logically checked, don't check the rest
+            break;
+        }
+    }
+    var lineElementRadios = document.getElementsByName('lineElement');
+    for (var i = 0, length = lineElementRadios.length; i < length; i++) {
+        if (lineElementRadios[i].checked) {
+            // do whatever you want with the checked radio
+            var selectedElement = lineElementRadios[i].value;
+            // only one radio can be logically checked, don't check the rest
+            break;
+        }
+    }
+    
+    // Then go through the django JSON line chart query data and pull out the the selected field and element
+    var lineDataJson = JSON.parse(element_year_json)
+    var dateList = [];
+    var valueList = [];
+    console.log(typeof lineDataJson)
+    console.log(typeof element_year_json)
+    i=0;
+    while (i < lineDataJson.length) {
+        if (lineDataJson[i][0] == selectedField) { 
+            dateList.push(lineDataJson[i][1]);
+            valueList.push(lineDataJson[i][2]);
+        }
+        i++;
+    }
+    console.log(dateList)
+    console.log(valueList)
+    i=0
+    var lineData = []
+    // Next create an array of xy pair objects, the data format that chart.js accepts for scatter charts
+    while (i < dateList.length) {
+        var newObj = {x: dateList[i], y: valueList[i]};
+        lineData.push(newObj);
+        i++;
+    }
+    console.log(lineData)
+    //alert(lineData.toSource())
+    var ctx = document.getElementById("myChart2").getContext('2d');
+    if (myLineChart != null) {
+        alert("here")
+        myLinechart.data.labels = selectedElement;
+        myLinechart.data.datasets[0].data = lineData;
+        myLineChart.update();
+    }
+    else {
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: selectedElement,
+                    data: lineData,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                    ],
+                    borderWidth: 3,
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)'
+                    ],
+                    fill: false,
+                    pointHitRadius: 20,
+
+                }]
+            },
+            options: {
+                duration: 2000,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+                    }],
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            displayFormats: {
+                                hour: 'MMM D'
+                        }
+                    }
+                    }]
+                },
+                showLine: true
+            }
+        });
+    }
+}
+</script>
+
+<script>
+function reDrawContentChart(content_data_json) {
+    console.log(content_data_json)
+    // First tear down the old chart to avoid conflict
+    var element = document.getElementById("myChart");
+    var parent = element.parentNode
+    element.parentNode.removeChild(element);
+    var canvas = document.createElement('canvas');
+    canvas.id = "myChart";
+    canvas.width  = 400;
+    canvas.height = 200;
+    parent.appendChild(canvas)
+    
+    var recentData = content_data_json
+    var stringData = console.log(JSON.stringify(recentData, null, 4));
+    console.log(recentData)
+    parsedData = JSON.parse(recentData);
+    console.log(parsedData[0].fields)
+    
+    var barDataPercent = [];
+    var barDataPpm = [null,0,0,0,0,0]
+    barDataPercent.push(parsedData[0].fields.nitrogen)
+    barDataPercent.push(parsedData[0].fields.phosphorus)
+    barDataPercent.push(parsedData[0].fields.potassium)
+    barDataPercent.push(parsedData[0].fields.magnesium)
+    barDataPercent.push(parsedData[0].fields.calcium)
+    barDataPercent.push(parsedData[0].fields.sulfur)
+    barDataPpm.push(parsedData[0].fields.boron)
+    barDataPpm.push(parsedData[0].fields.zinc)
+    barDataPpm.push(parsedData[0].fields.manganese)
+    barDataPpm.push(parsedData[0].fields.iron)
+    barDataPpm.push(parsedData[0].fields.copper)
+    barDataPpm.push(parsedData[0].fields.chloride)
+    
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Nitrogen', 'Phosphorus', 'Potassium', 'Magnesium', 'Calcium', 'Sulfur', 'Boron', 'Zinc', 
+                    'Manganese', 'Iron', 'Copper', 'Chloride'],
+            datasets: [
+                {
+                    label: 'Percent',
+                    data: barDataPercent,
+                    yAxisID: 'A',
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                    ],
+                    borderWidth: 1
+                },
+                {
+                    label: 'PPM',
+                    data: barDataPpm,
+                    yAxisID: 'B',
+                    backgroundColor: [
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                    ],
+                    borderWidth: 1
+                }
+            ],
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    id: 'A',
+                    type: 'linear',
+                    position: 'left',
+                }, {
+                    id: 'B',
+                    type: 'linear',
+                    position: 'right',
+             }]
+            }
+        }
+    });
+}
+</script>
+
+<script>
+function reDrawSuffChart(sufficiency_dict) {
+    console.log(sufficiency_dict)
+    // First tear down the old chart to avoid conflict
+    var element = document.getElementById("myChart3");
+    var parent = element.parentNode
+    element.parentNode.removeChild(element);
+    var canvas = document.createElement('canvas');
+    canvas.id = "myChart3";
+    canvas.width  = 400;
+    canvas.height = 200;
+    parent.appendChild(canvas)
+    
+    var recentData = sufficiency_dict
+    var stringData = console.log(JSON.stringify(recentData, null, 4));
+    console.log(sufficiency_dict.boron)
+    
+    var barData = [];
+    barData.push(sufficiency_dict.nitrogen)
+    barData.push(sufficiency_dict.phosphorus)
+    barData.push(sufficiency_dict.potassium)
+    barData.push(sufficiency_dict.magnesium)
+    barData.push(sufficiency_dict.calcium)
+    barData.push(sufficiency_dict.sulfur)
+    barData.push(sufficiency_dict.boron)
+    barData.push(sufficiency_dict.zinc)
+    barData.push(sufficiency_dict.manganese)
+    barData.push(sufficiency_dict.iron)
+    barData.push(sufficiency_dict.copper)
+    barData.push(sufficiency_dict.chloride)
+    console.log(barData)
+    
+    labelString = String(sufficiency_dict.field) + " , " + String(sufficiency_dict.date)
+    
+    var ctx = document.getElementById("myChart3").getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Nitrogen', 'Phosphorus', 'Potassium', 'Magnesium', 'Calcium', 'Sulfur', 'Boron', 'Zinc', 
+                    'Manganese', 'Iron', 'Copper', 'Chloride'],
+            datasets: [
+                {
+                    label: labelString,
+                    data: barData,
+                    yAxisID: 'A',
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 159, 64, 1)',
+                    ],
+                    borderWidth: 1
+                },
+            ],
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    id: 'A',
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                        beginAtZero: true,
+                        max: 100,
+                        callback: function(value, index, values) {
+                            if(value == 10){
+                                return 'Deficient'
+                            } else if(value == 30){
+                                return 'Low'
+                            } else if(value == 50){
+                                return 'Optimum'
+                            } else if(value == 70){
+                                return 'High'
+                            } else if(value == 90){
+                                return 'Excessive'
+                            } else {
+                                return '';
+                            }
+                        }
+                    }   
+                }]
+            }
+        }
+    });
+    
+    var ctx = document.getElementById("myChart3").getContext("2d");
+    
+    for (var j = 0; j < 12; j++) {
+        if(barData[j] < 20){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(255, 0, 0, 0.2)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(255, 0, 0, 1)';
+        } else if(barData[j] < 40){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(255, 255, 51, 0.4)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(255, 255, 51, 1)'; 
+        } else if(barData[j] < 60){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(0, 204, 0, 0.2)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(0, 204, 0, 1)';
+        } else if(barData[j] < 80){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(0, 102, 0, 0.2)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(0, 102, 0, 1)';
+        } else if(barData[j] <= 100){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(0, 224, 244, 0.4)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(0, 224, 244, 1)'; 
+        }
+        
+        myChart.update();
+    }
+    
+    //myChart.data.datasets[0].backgroundColor[1] = "green"; //bar 1
+    myChart.update(); //update the cahrt
+    
+}
+</script>
+
+<script>
+function reDrawComChart(comparison_data) {
+    console.log(comparison_data)
+    keys = Object.keys(comparison_data)
+    console.log(keys)
+    console.log(comparison_data[keys[0]].field)
+    // First tear down the old chart to avoid conflict
+    var element = document.getElementById("myChart4");
+    var parent = element.parentNode
+    element.parentNode.removeChild(element);
+    var canvas = document.createElement('canvas');
+    canvas.id = "myChart4";
+    canvas.width  = 400;
+    canvas.height = 200;
+    parent.appendChild(canvas)
+    
+    var dataArray = []
+    for(var i = 0; i < keys.length; i++){
+        var barData = [];
+        barData.push(comparison_data[keys[i]].nitrogen)
+        barData.push(comparison_data[keys[i]].phosphorus)
+        barData.push(comparison_data[keys[i]].potassium)
+        barData.push(comparison_data[keys[i]].magnesium)
+        barData.push(comparison_data[keys[i]].calcium)
+        barData.push(comparison_data[keys[i]].sulfur)
+        barData.push(comparison_data[keys[i]].boron)
+        barData.push(comparison_data[keys[i]].zinc)
+        barData.push(comparison_data[keys[i]].manganese)
+        barData.push(comparison_data[keys[i]].iron)
+        barData.push(comparison_data[keys[i]].copper)
+        barData.push(comparison_data[keys[i]].chloride)
+        dataArray.push(barData)
+    }
+    console.log(dataArray)
+    var labelStringArray = []
+    for(var i = 0; i < keys.length; i++){
+        labelStringArray.push(String(comparison_data[keys[i]].field) + " , " + String(comparison_data[keys[i]].date))
+    }
+    console.log(labelStringArray)
+    
+    var datasetValue = [];
+    for (var j=0; j < keys.length; j++) {
+        datasetValue[j] = {
+            label: labelStringArray[j],
+            data: dataArray[j],
+            yAxisID: 'A',
+            borderWidth: 1,
+            backgroundColor: rainbow(keys.length, j, 'transparent'),
+            borderColor: rainbow(keys.length, j, 'solid'),
+        }
+    }
+    console.log(datasetValue)
+    
+    
+    var ctx = document.getElementById("myChart4").getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Nitrogen', 'Phosphorus', 'Potassium', 'Magnesium', 'Calcium', 'Sulfur', 'Boron', 'Zinc', 
+                    'Manganese', 'Iron', 'Copper', 'Chloride'],
+            datasets: datasetValue,
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    id: 'A',
+                    type: 'linear',
+                    position: 'left',
+                    ticks: {
+                        beginAtZero: true,
+                        max: 100,
+                        callback: function(value, index, values) {
+                            if(value == 10){
+                                return 'Deficient'
+                            } else if(value == 30){
+                                return 'Low'
+                            } else if(value == 50){
+                                return 'Optimum'
+                            } else if(value == 70){
+                                return 'High'
+                            } else if(value == 90){
+                                return 'Excessive'
+                            } else {
+                                return '';
+                            }
+                        }
+                    }   
+                }]
+            }
+        }
+    });
+    
+    var ctx = document.getElementById("myChart4").getContext("2d");
+    
+    for (var j = 0; j < 12; j++) {
+        if(dataArray[0] < 20){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(255, 0, 0, 0.2)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(255, 0, 0, 1)';
+        } else if(barData[j] < 40){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(255, 255, 51, 0.4)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(255, 255, 51, 1)'; 
+        } else if(barData[j] < 60){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(0, 204, 0, 0.2)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(0, 204, 0, 1)';
+        } else if(barData[j] < 80){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(0, 0, 204, 0.2)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(0, 0, 204, 1)';
+        } else if(barData[j] <= 100){
+            myChart.data.datasets[0].backgroundColor[j] = 'rgba(153, 0, 76, 0.2)';
+            myChart.data.datasets[0].borderColor[j] = 'rgba(153, 0, 76, 1)'; 
+        }
+        
+        myChart.update();
+    }
+    
+    //myChart.data.datasets[0].backgroundColor[1] = "green"; //bar 1
+    myChart.update(); //update the cahrt
+    
+}
+</script>
+
+<script>
+// HSV values in [0..1[
+// returns [r, g, b] values from 0 to 255
+function rainbow(numOfSteps, step, type) {
+    // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily 
+    // distinguishable vibrant markers in Google Maps and other apps.
+    // Adam Cole, 2011-Sept-14
+    // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+    var r, g, b;
+    var h = step / numOfSteps;
+    var i = ~~(h * 6);
+    var f = h * 6 - i;
+    var q = 1 - f;
+    switch(i % 6){
+        case 0: r = 1; g = f; b = 0; break;
+        case 1: r = q; g = 1; b = 0; break;
+        case 2: r = 0; g = 1; b = f; break;
+        case 3: r = 0; g = q; b = 1; break;
+        case 4: r = f; g = 0; b = 1; break;
+        case 5: r = 1; g = 0; b = q; break;
+    }
+    var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
+    console.log(c)
+    var r;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(c)){
+        r= c.substring(1).split('');
+        if(r.length== 3){
+            r= [r[0], r[0], r[1], r[1], r[2], r[2]];
+        }
+        r= '0x'+r.join('');
+        if(type == 'transparent'){
+            return 'rgba('+[(r>>16)&255, (r>>8)&255, r&255].join(',')+',0.4)';
+        }
+        if(type == 'solid'){
+            return 'rgba('+[(r>>16)&255, (r>>8)&255, r&255].join(',')+',1)';
+        }
+        
+    }
+    console.log(r)
+    return (r);
+
+};
+  
+</script>
+
+
+
+{% endblock %}

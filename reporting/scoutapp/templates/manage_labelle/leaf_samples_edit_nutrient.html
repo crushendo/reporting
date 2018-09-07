@@ -1,0 +1,159 @@
+{% extends 'base.html' %} 
+{% block title %}Edit Nutrient{{ block.super }}{% endblock %} 
+
+{% block header %}
+<style>
+/* Container/Sidebar Style */
+.wrapper {
+        display: grid;
+
+        /*  Define the size and number of columns in our grid. 
+        The fr unit works similar to flex:
+        fr columns will share the free space in the row in proportion to their value.
+        We will have 2 columns - the second will be 3x the size of the first.  */
+        grid-template-columns: 25vw 3fr;
+
+        /*  Assign the grid areas we did earlier to specific places on the grid. 
+            First row is all header.
+            Second row is shared between main and sidebar.
+            Last row is all footer.  */
+        grid-template-areas: 
+            "header header"
+            "sidebar main"
+
+        /*  The gutters between each grid cell will be 60 pixels. */
+        grid-gap: 60px;
+        grid-auto-rows: minmax(100px, auto);
+        }
+   
+    .main {
+        grid-area: main;
+        grid-column: 2;
+        margin-right: 5vw;
+        margin-left: 3vw;
+        grid-row: 1
+    }
+    .sidebar {
+        grid-area: sidebar;
+        grid-column: 1;
+        grid-row: 1
+    }
+</style>
+
+<style>
+/* Tab Style */
+.tab {
+    float: left;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    width: 30%;
+    height: 300px;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+    display: block;
+    background-color: inherit;
+    color: black;
+    padding: 22px 16px;
+    width: 100%;
+    border: none;
+    outline: none;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current "tab button" class */
+.tab button.active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    float: left;
+    padding: 0px 12px;
+ 
+    width: 70%;
+    border-left: none;
+    height: 300px;
+} 
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<ul class="nav nav-tabs" role="tablist">
+    <li><a id="tab1" href="#chart1" role="tab" data-toggle="tab">Psyllids</a></li>
+    <li><a id="tab2" href="#chart2" role="tab" data-toggle="tab">Irrigation</a></li>
+    <li class="active"><a id="tab3" href="/manage_labelle/leaf_samples" >Leaf Samples</a></li>
+</ul>
+
+<div class="wrapper"> 
+    <div id="London" class="tabcontent" style="width:100%">
+        <p style="margin-top: 10vh">*'Column header' field must match exactly as typed on CSV header. </p>
+        <p style="margin-top: 3vh">*'Metric' field must be either 'ppm' or 'percent,' all lower case. </p>
+        <p style="margin-top: 3vh">*Nutrition field values are the upper bound of the range, e.g. the Deficient range
+        is between 0 and the 'Deficient' field value. </p>
+    </div>
+    <section class="main"> 
+        <div style="width:100%">
+            <h5>Edit Leaf Element Field</h5>
+            <form method="post" action="/manage_labelle/leaf_samples_edit_nutrient" onsubmit="return checkForm();" class="form-horizontal">
+                {% csrf_token %}
+                <table id="addField">
+                    {{form.as_table}}
+                </table>
+                <input type="button" id="cancel" value="Cancel" onclick="window.location.href='/manage_labelle/leaf_samples'">
+                <input type="submit" id="addFieldButton" value="Submit">
+                <input type="hidden" id="editId" name="editId" value={{edit_id}}>
+            </form>
+        </div>
+    </section>
+</div>
+
+<script>
+    function checkForm() {
+        var units = document.getElementById("id_metric").value;
+        var deficient = document.getElementById("id_deficient").value;
+        var low = document.getElementById("id_low").value;
+        var optimum = document.getElementById("id_optimum").value;
+        var high = document.getElementById("id_high").value;
+        var excess = document.getElementById("id_excess").value;
+        if(units != "percent" && units != "ppm"){
+            alert("Metric field must be either 'percent' or 'ppm.'")
+            return false;
+        }
+        if(isNaN(deficient) || deficient == '' ){
+            alert("Deficient field must be a number.")
+            return false;
+        }
+        if(isNaN(low) || low == '' ){
+            alert("Low field must be a number.")
+            return false;
+        }
+        if(isNaN(high) || high == '' ){
+            alert("High field must be a number.")
+            return false;
+        }
+        if(isNaN(optimum) || optimum == '' ){
+            alert("Optimum field must be a number.")
+            return false;
+        }
+        if(isNaN(excess) || excess == '' ){
+            alert("Excess field must be a number.")
+            return false;
+        }
+        
+    }
+</script>
+
+
+{% endblock %}
+

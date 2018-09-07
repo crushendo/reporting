@@ -1,5 +1,5 @@
 {% extends 'base.html' %} 
-{% block title %}About - {{ block.super }}{% endblock %} 
+{% block title %}Login {{ block.super }}{% endblock %} 
 
 
 
@@ -7,7 +7,7 @@
 
 <h1 id="loginTitle">Login to DUDA Scouter</h1>
         <br><br>
-        <form id="login_form" method="POST" role="form" action="/accounts/auth/">
+        <form id="login_form" method="POST" role="form" action="/accounts/login/">
             {% csrf_token %}
             <td class="row">
                 <div class="col-md-6 col-md-offset-3 centered">
@@ -26,6 +26,7 @@
                     <input type="submit" class="btn btn-primary" value="Submit" style="float: right;margin-right:5%;width: 150px;">
                 </div>
             </td> 
+            <input type="hidden" id="next" name="next">
         </form>
         
         <style>
@@ -35,5 +36,12 @@
                 margin: 0 auto;
             }
         </style>
+
+<script>
+var url = window.location.href 
+var captured = /next=([^&]+)/.exec(url)[1]; // Value is in [1] ('384' in our case)
+var result = captured ? captured : 'myDefaultValue';
+document.getElementById('next').value = result
+</script>
 
 {% endblock %}
