@@ -18,22 +18,28 @@ class Field(models.Model):
 class LabelleData(models.Model):
     id = models.AutoField(primary_key=True)
     slug = models.SlugField(unique = True)
-    Field = models.TextField(default = ' ', blank=True)
-    Age = models.TextField(default = ' ', blank=True)
-    Date = models.DateField(null=True)
-    Stop = models.TextField(default = ' ', blank=True)
-    Adult = models.TextField(default = ' ', blank=True)
-    Eggs = models.TextField(default = ' ', blank=True)
-    Tapped = models.TextField(default = ' ', blank=True)
-    Flush = models.TextField(default = ' ', blank=True)
-    LM = models.TextField(default = ' ', blank=True)
-    OD = models.TextField(default = ' ', blank=True)
-    SM = models.TextField(default = ' ', blank=True)
-    Leafminer = models.TextField(default = ' ', blank=True)
-    ODLarva = models.TextField(default = ' ', blank=True)
-    ODEggs = models.TextField(default = ' ', blank=True)
-    SpiderMites = models.TextField(default = ' ', blank=True)
-    Other = models.TextField(default = ' ', blank=True)
+    Field = models.CharField(max_length=64, default = ' ', blank=True)
+    Age = models.CharField(max_length=64, default = ' ', blank=True)
+    Date = models.DateField(blank=True, null=True)
+    Stop = models.CharField(max_length=64, default = ' ', blank=True)
+    Adult = models.IntegerField(blank=True, null=True)
+    Eggs = models.IntegerField(blank=True, null=True)
+    Tapped = models.CharField(max_length=64, default = ' ', blank=True, null=True)
+    Flush = models.CharField(max_length=64, default = ' ', blank=True, null=True)
+    LM = models.CharField(max_length=64, default = ' ', blank=True)
+    OD = models.CharField(max_length=64, default = ' ', blank=True)
+    SM = models.CharField(max_length=64, default = ' ', blank=True)
+    Leafminer = models.CharField(max_length=64, default = ' ', blank=True)
+    ODLarva = models.CharField(max_length=64, default = ' ', blank=True)
+    ODEggs = models.CharField(max_length=64, default = ' ', blank=True)
+    SpiderMites = models.CharField(max_length=64, default = ' ', blank=True)
+    Other = models.CharField(max_length=64, default = ' ', blank=True)
+    class Meta:
+        indexes = [
+            models.Index(fields=['Date']),
+            models.Index(fields=['Field']),
+            models.Index(fields=['Date', 'Field']),
+        ]
     
 class labelleFieldOrder(models.Model):
     fieldName = models.TextField(default = ' ', blank=True)

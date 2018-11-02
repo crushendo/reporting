@@ -90,7 +90,10 @@
             }
             
             // Save all inputs to localStorage
+            console.log("here")
             var formdate = moment("{{ formDate }}").format('YYYY-MM-DD');
+            console.log(formdate)
+            console.log("here")
             var formField = "{{ formField }}";
             var formStop = "{{ formStop }}";
             var key = [];
@@ -177,7 +180,7 @@
                     }
                 }
             });
-            
+            console.log("here")
             // Send all data and keys in localStorage to backend via AJAX
             //alert(allKeys[0])
             $.ajax({
@@ -200,6 +203,7 @@
         function checkFunction(message) {
             // TODO: now clear localStorage, not earlier
             //alert(message);
+            console.log("check")
             localStorage.clear();
             window.location = "/labelle/scouting/mature";
         }

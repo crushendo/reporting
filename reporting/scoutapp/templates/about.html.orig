@@ -1,0 +1,16 @@
+{% extends 'base.html' %} 
+{% block title %}About - {{ block.super }}{% endblock %} 
+
+
+
+{% block content %}
+
+<p style="margin-left:10vw;margin-right:10vw;margin-top:10vh;text-align:center">
+DUDA Scouter is a web app that modernizes field scouting and allows you <br> to access all the latest data at an instant, straight from the field.
+</p>
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> 82798abc753ee3c924b11d929687c3f0a9979663
+{% endblock %}

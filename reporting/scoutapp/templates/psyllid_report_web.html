@@ -15,12 +15,13 @@
 <style>
     .wrapper {
         display: grid;
-
+        display: -ms-grid;
         /*  Define the size and number of columns in our grid. 
         The fr unit works similar to flex:
         fr columns will share the free space in the row in proportion to their value.
         We will have 2 columns - the second will be 3x the size of the first.  */
         grid-template-columns: 15vw 3fr;
+        -ms-grid-columns: 15vw 3fr;
 
         /*  Assign the grid areas we did earlier to specific places on the grid. 
             First row is all header.
@@ -41,11 +42,16 @@
         margin-right: 5vw;
         margin-left: 3vw;
         grid-row: 1
+        -ms-grid-column: 2;
+        -ms-grid-row: 1;
     }
     .sidebar {
         grid-area: sidebar;
         grid-column: 1;
-        grid-row: 1
+        grid-row: 1;
+        -ms-grid-column: 1;
+        -ms-grid-row: 1;
+        
     }
     footer {
         grid-area: footer;
@@ -159,21 +165,21 @@
                             <th style="text-align:center">Adult Tapped Total</th>
                             <th style="text-align:center">% Avg Flushing Trees</th>
                             <th style="text-align:center">Notes</th>
-                            <th style="text-align:center">nw_adult</th>
-                            <th style="text-align:center">nw_eggs</th>
-                            <th style="text-align:center">nw_tapped</th>
-                            <th style="text-align:center">ne_adult</th>
-                            <th style="text-align:center">ne_eggs</th>
-                            <th style="text-align:center">ne_tapped</th>
                             <th style="text-align:center">c_adult</th>
                             <th style="text-align:center">c_eggs</th>
                             <th style="text-align:center">c_tapped</th>
-                            <th style="text-align:center">sw_adult</th>
-                            <th style="text-align:center">sw_eggs</th>
-                            <th style="text-align:center">sw_tapped</th>
+                            <th style="text-align:center">ne_adult</th>
+                            <th style="text-align:center">ne_eggs</th>
+                            <th style="text-align:center">ne_tapped</th>
+                            <th style="text-align:center">nw_adult</th>
+                            <th style="text-align:center">nw_eggs</th>
+                            <th style="text-align:center">nw_tapped</th>
                             <th style="text-align:center">se_adult</th>
                             <th style="text-align:center">se_eggs</th>
                             <th style="text-align:center">se_tapped</th>
+                            <th style="text-align:center">sw_adult</th>
+                            <th style="text-align:center">sw_eggs</th>
+                            <th style="text-align:center">sw_tapped</th>
                         </tr>
                     </thead>
                     <tbody id="tbody1">
@@ -188,15 +194,6 @@
             <aside class="sidebar" style="margin-left: 0.5vw">
                 <h5 style="margin-top: 2vh; text-align: center">Filter</h5>
                 <div>
-                    <h6>Field:</h6>
-                    <div class="bigContainer">
-                        <form id="graphField">
-                            <input type="radio" name="graphField" value="All" > All <br/>
-                            {% for field in fields_distinct %}
-                                <input type="radio" name="graphField" value="{{field}}" > {{ field }} <br/>
-                            {% endfor %}
-                        </form>
-                    </div>
                     <h6 style="margin-bottom:0.5vh">Start Date: </h6>
                     <div class="container" style="margin-left:0%;">
                         <div class="input-group date" data-provide="datepicker-inline" data-date-today-highlight="true" style="width:10vw;margin-top:1vh;position:relative;float:left;">
@@ -215,7 +212,7 @@
                 </div>
             </aside>
             <section class="main">
-                <h5 style="margin-top: 2vh; text-align: center">Rust Mites Report</h5>
+                <h5 style="margin-top: 2vh; text-align: center">Average Psyllids Populations Over Time</h5>
                 <div class="chart-container" style="position: relative; height:40vh; width:70vw">
                     <canvas id="myChart" width="400" height="200"></canvas>
                 </div>
@@ -227,37 +224,36 @@
     {
         field: document.getElementById('startDate'),
         firstDay: 1,
-        minDate: new Date(2000, 0, 1),
+        minDate: new Date(2017, 3, 3),
         format: 'MM/DD/YYYY',
-        yearRange: [2000,2030]
+        yearRange: [2017,2050]
     });
     var picker2 = new Pikaday(
         {
             field: document.getElementById('endDate'),
             firstDay: 1,
-            minDate: new Date(2000, 0, 1),
+            minDate: new Date(2017, 3, 3),
             format: 'MM/DD/YYYY',
-            yearRange: [2000,2030]
+            yearRange: [2017,2050]
         });
     var picker3 = new Pikaday(
     {
         field: document.getElementById('graphStartDate'),
         firstDay: 1,
-        minDate: new Date(2000, 0, 1),
+        minDate: new Date(2017, 3, 3),
         format: 'MM/DD/YYYY',
-        yearRange: [2000,2030]
+        yearRange: [2017,2050]
     });
     var picker4 = new Pikaday(
         {
             field: document.getElementById('graphEndDate'),
             firstDay: 1,
-            minDate: new Date(2000, 0, 1),
+            minDate: new Date(2017, 3, 3),
             format: 'MM/DD/YYYY',
-            yearRange: [2000,2030]
+            yearRange: [2017,2050]
         });
     
 </script>
-
 <!-- Autofills the current date in the date box -->
 <script type="text/javascript">
     function getDate() {
@@ -265,11 +261,14 @@
         var dd = today.getDate();
         var mm = today.getMonth()+1; //January is 0!
         var yyyy = today.getFullYear();
-        
         var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+        var lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
         var dd2 = lastWeek.getDate();
         var mm2 = lastWeek.getMonth()+1;
         var yyyy2 = lastWeek.getFullYear();
+        var dd3 = lastYear.getDate();
+        var mm3 = lastYear.getMonth()+1;
+        var yyyy3 = lastYear.getFullYear();
         if(dd<10) {
             dd='0'+dd
         } 
@@ -282,12 +281,19 @@
         if(mm2<10) {
             mm2='0'+mm2
         } 
+        if(dd3<10) {
+            dd3='0'+dd3
+        } 
+        if(mm3<10) {
+            mm3='0'+mm3
+        } 
         
         today = mm+'/'+dd+'/'+yyyy;
         lastWeek =  mm2+'/'+dd2+'/'+yyyy2;
+        lastYear =  mm3+'/'+dd3+'/'+yyyy3;
         document.getElementById("startDate").value = lastWeek;
         document.getElementById("endDate").value = today;
-        document.getElementById("graphStartDate").value = lastWeek;
+        document.getElementById("graphStartDate").value = lastYear;
         document.getElementById("graphEndDate").value = today;
       }
 </script>
@@ -313,27 +319,27 @@ function format ( d ) {
         '</tr>'+
         '<tr>'+
             '<td>Adults:</td>'+
-            '<td>'+d[9]+'</td>'+
-            '<td>'+d[12]+'</td>'+
             '<td>'+d[15]+'</td>'+
-            '<td>'+d[18]+'</td>'+
+            '<td>'+d[12]+'</td>'+
+            '<td>'+d[9]+'</td>'+
             '<td>'+d[21]+'</td>'+
+            '<td>'+d[18]+'</td>'+
         '</tr>'+
         '<tr>'+
             '<td>Eggs & Nymphs:</td>'+
-            '<td>'+d[10]+'</td>'+
-            '<td>'+d[13]+'</td>'+
             '<td>'+d[16]+'</td>'+
-            '<td>'+d[19]+'</td>'+
+            '<td>'+d[13]+'</td>'+
+            '<td>'+d[10]+'</td>'+
             '<td>'+d[22]+'</td>'+
+            '<td>'+d[19]+'</td>'+
         '</tr>'+
         '<tr>'+
             '<td>Tapped:</td>'+
-            '<td>'+d[11]+'</td>'+
-            '<td>'+d[14]+'</td>'+
             '<td>'+d[17]+'</td>'+
-            '<td>'+d[20]+'</td>'+
+            '<td>'+d[14]+'</td>'+
+            '<td>'+d[11]+'</td>'+
             '<td>'+d[23]+'</td>'+
+            '<td>'+d[20]+'</td>'+
         '</tr>'+
     '</table>';
 }        
@@ -341,12 +347,15 @@ function format ( d ) {
         
 <script>
     function fillData() {
+        var old_tbody = document.getElementById('tbody1');
+        var new_tbody = document.createElement('tbody');
+        new_tbody.setAttribute('id', 'tbody1') 
+        old_tbody.parentNode.replaceChild(new_tbody, old_tbody)
+        var datatable = $('#myTable').DataTable();
+        datatable.destroy();
         var psyllidData = {{ psyllid_json |safe }};
         var detailKeys = {{ detail_keys | safe}}
-        console.log(detailKeys)
-        console.log(psyllidData);
         keys = Object.keys(psyllidData);
-        console.log(keys)
         for(var yy = 0; yy < keys.length; yy++) {
             var blockIter = psyllidData[keys[yy]].field_name
             var sprayDateIter = psyllidData[keys[yy]].spray_date
@@ -355,7 +364,7 @@ function format ( d ) {
             var eggsIter = psyllidData[keys[yy]].eggs
             var tappedIter = psyllidData[keys[yy]].tapped
             var flushIter = psyllidData[keys[yy]].flush
-            flushIter = String(flushIter)
+            var noteIter = psyllidData[keys[yy]].notes
             // Insert a row in the table at row index 0
             var myTable = document.getElementById("myTable").getElementsByTagName('tbody')[0]
             var newRow = myTable.insertRow(myTable.rows.length);
@@ -370,14 +379,26 @@ function format ( d ) {
             var newCell7 = newRow.insertCell(6);
             var newCell8 = newRow.insertCell(7);
             var newCell9 = newRow.insertCell(8);
+            var totalAdult = 0;
+            var totalEggs = 0
+            var totalTapped = 0
+            var totalFlush = 0
+            for(var i=0,n=adultIter.length; i<n; ++i)
+            {
+                totalAdult += adultIter[i];
+                totalEggs += eggsIter[i];
+                totalTapped += tappedIter[i];
+                totalFlush += flushIter[i];
+            }
             // Append a text node to the cell
             var newBlock = document.createTextNode(blockIter);
             var newSprayDate = document.createTextNode(sprayDateIter);
             var newDate = document.createTextNode(dateIter);
-            var newAdult = document.createTextNode(adultIter);
-            var newEggs = document.createTextNode(eggsIter);
-            var newTapped = document.createTextNode(tappedIter);
-            var newFlush = document.createTextNode(flushIter);
+            var newAdult = document.createTextNode(totalAdult);
+            var newEggs = document.createTextNode(totalEggs);
+            var newTapped = document.createTextNode(totalTapped);
+            var newFlush = document.createTextNode(totalFlush);
+            var newNote = document.createTextNode(noteIter);
             newCell2.appendChild(newBlock);
             newCell3.appendChild(newSprayDate);
             newCell4.appendChild(newDate);
@@ -385,42 +406,55 @@ function format ( d ) {
             newCell6.appendChild(newEggs);
             newCell7.appendChild(newTapped);
             newCell8.appendChild(newFlush);
-            
-            for(var zz = 0; zz < 15; zz++) {
-                var currentDetail = detailKeys[zz]
-                console.log(currentDetail)
-                var newCell = newRow.insertCell(zz + 9);
-                var blockIter = psyllidData[keys[yy]][currentDetail]
-                console.log(blockIter)
-                if(blockIter == null){
-                    blockIter = ""
+            newCell9.appendChild(newNote);
+            var ii = 0
+            var jj = 0
+            for(var kk = 0; kk < 5; kk++) {
+                adultStop = adultIter[kk];
+                eggStop = eggsIter[kk];
+                tappedStop = tappedIter[kk];
+                console.log(blockIter);
+                console.log(adultStop);
+                var newCell = newRow.insertCell(jj + 9);
+                var newCell2 = newRow.insertCell(jj + 10);
+                var newCell3 = newRow.insertCell(jj + 11);
+                if(adultStop == null){
+                    adultStop = ""
                 }
-                var newData = document.createTextNode(blockIter);
+                if(eggStop == null){
+                    eggStop = ""
+                }
+                if(tappedStop == null){
+                    tappedStop = ""
+                }
+                var newData = document.createTextNode(adultStop);
                 newCell.appendChild(newData);
+                var newData2 = document.createTextNode(eggStop);
+                newCell2.appendChild(newData2);
+                var newData3 = document.createTextNode(tappedStop);
+                newCell3.appendChild(newData3);
+                jj = jj + 3;
             } 
         }
-    }
     
-    $(document).ready( function () {
-        var table = $(' #myTable ').DataTable( {
+        var update = $('#myTable').DataTable( {
             "createdRow": function ( row, data, index ) {
-                if ( data[4].replace(/[\$,]/g, '') * 1 > 10 ) {
+                if ( data[4].replace(/[\$,]/g, '') * 1 >= 10 ) {
                     $('td', row).eq(3).addClass('highlightRed');
                 }
-                if ( data[5].replace(/[\$,]/g, '') * 1 > 20 ) {
+                if ( data[5].replace(/[\$,]/g, '') * 1 >= 20 ) {
                     $('td', row).eq(4).addClass('highlightRed');
                 }
-                if ( data[6].replace(/[\$,]/g, '') * 1 > 5 ) {
+                if ( data[6].replace(/[\$,]/g, '') * 1 >= 5 ) {
                     $('td', row).eq(5).addClass('highlightRed');
                 }
-                if ( data[7].replace(/[\$,]/g, '') * 1 > 50 ) {
+                if ( data[7].replace(/[\$,]/g, '') * 1 >= 50 ) {
                     $('td', row).eq(6).addClass('highlightGreen');
                 }
             },
             scrollY:        '70vh',
             scrollCollapse: true,
             paging:         false,
-           
             columnDefs: [
                 {
                     "targets": 0,
@@ -437,6 +471,7 @@ function format ( d ) {
                 { "width": "3%", "targets": 5 },
                 { "width": "3%", "targets": 6 },
                 { "width": "3%", "targets": 7 },
+                { "width": "3%", "targets": 8 },
                 {
                     targets: [0,1,2,3,4,5,6,7,8],
                     className: 'dt-center'
@@ -450,10 +485,11 @@ function format ( d ) {
               ],
             "order": [[ 1, "asc" ]]
         });
+    
         // Add event listener for opening and closing details
         $('#myTable tbody').on('click', 'td.details-control', function () {
             var tr = $(this).closest('tr');
-            var row = table.row( tr );
+            var row = update.row( tr );
 
             if ( row.child.isShown() ) {
                 // This row is already open - close it
@@ -466,9 +502,11 @@ function format ( d ) {
                 tr.addClass('shown');
             }
         } );
+    
         
-    } );
+    }
 </script>
+
 
 <script>	
     function updateDates() {
@@ -523,17 +561,6 @@ function format ( d ) {
         var graphStartDate = document.getElementById("graphStartDate").value
         var graphEndDate = document.getElementById("graphEndDate").value
         
-        // Get all selected values from radio buttons and dates, etc
-        var graphFieldRadios = document.getElementsByName('graphField');
-        for (var i = 0, length = graphFieldRadios.length; i < length; i++) {
-            if (graphFieldRadios[i].checked) {
-                // do whatever you want with the checked radio
-                var graphField = graphFieldRadios[i].value;
-                // only one radio can be logically checked, don't check the rest
-                break;
-            }
-        }
-        
         var flag = 'graph'
         // Setting CSRF Token for AJAX POST Request
         var name = 'csrftoken';
@@ -560,11 +587,10 @@ function format ( d ) {
         // Send all data and keys to backend via AJAX
         $.ajax({
             type: 'POST',
-            url: '/rust_mite_report',
+            url: '/psyllid_report_web',
             data: {
                 'graphStartDate': graphStartDate,
                 'graphEndDate': graphEndDate,
-                'graphField': graphField,
                 'flag': flag
             },
             success: reDrawLineChart,
@@ -574,21 +600,20 @@ function format ( d ) {
 
 <script>
     function updateData(psyllid_data) {
-        var detailKeys = {{ detail_keys | safe}}
-        console.log(detailKeys)
+        //var psyllidData = {{ psyllid_json |safe }};
         var psyllidData = psyllid_data
-        console.log(psyllidData);
+        console.log(psyllidData)
+        var detailKeys = {{ detail_keys | safe}}
         keys = Object.keys(psyllidData);
-        console.log(keys)
         for(var yy = 0; yy < keys.length; yy++) {
-            var blockIter = psyllidData[keys[yy]].Field
+            var blockIter = psyllidData[keys[yy]].field_name
             var sprayDateIter = psyllidData[keys[yy]].spray_date
             var dateIter = psyllidData[keys[yy]].scout_date
-            var adultIter = psyllidData[keys[yy]].Adult
-            var eggsIter = psyllidData[keys[yy]].Eggs
-            var tappedIter = psyllidData[keys[yy]].Tapped
-            var flushIter = psyllidData[keys[yy]].Flush
-            
+            var adultIter = psyllidData[keys[yy]].adult
+            var eggsIter = psyllidData[keys[yy]].eggs
+            var tappedIter = psyllidData[keys[yy]].tapped
+            var flushIter = psyllidData[keys[yy]].flush
+            var noteIter = psyllidData[keys[yy]].notes
             // Insert a row in the table at row index 0
             var myTable = document.getElementById("myTable").getElementsByTagName('tbody')[0]
             var newRow = myTable.insertRow(myTable.rows.length);
@@ -603,14 +628,26 @@ function format ( d ) {
             var newCell7 = newRow.insertCell(6);
             var newCell8 = newRow.insertCell(7);
             var newCell9 = newRow.insertCell(8);
+            var totalAdult = 0;
+            var totalEggs = 0
+            var totalTapped = 0
+            var totalFlush = 0
+            for(var i=0,n=adultIter.length; i<n; ++i)
+            {
+                totalAdult += adultIter[i];
+                totalEggs += eggsIter[i];
+                totalTapped += tappedIter[i];
+                totalFlush += flushIter[i];
+            }
             // Append a text node to the cell
             var newBlock = document.createTextNode(blockIter);
             var newSprayDate = document.createTextNode(sprayDateIter);
             var newDate = document.createTextNode(dateIter);
-            var newAdult = document.createTextNode(adultIter);
-            var newEggs = document.createTextNode(eggsIter);
-            var newTapped = document.createTextNode(tappedIter);
-            var newFlush = document.createTextNode(flushIter);
+            var newAdult = document.createTextNode(totalAdult);
+            var newEggs = document.createTextNode(totalEggs);
+            var newTapped = document.createTextNode(totalTapped);
+            var newFlush = document.createTextNode(totalFlush);
+            var newNote = document.createTextNode(noteIter);
             newCell2.appendChild(newBlock);
             newCell3.appendChild(newSprayDate);
             newCell4.appendChild(newDate);
@@ -618,30 +655,46 @@ function format ( d ) {
             newCell6.appendChild(newEggs);
             newCell7.appendChild(newTapped);
             newCell8.appendChild(newFlush);
-            
-            for(var zz = 0; zz < 15; zz++) {
-                var currentDetail = detailKeys[zz]
-                console.log(currentDetail)
-                var newCell = newRow.insertCell(zz + 9);
-                var blockIter = psyllidData[keys[yy]][currentDetail]
-                console.log(blockIter)
-                if(blockIter == null){
-                    blockIter = ""
+            newCell9.appendChild(newNote);
+            var ii = 0
+            var jj = 0
+            for(var kk = 0; kk < 5; kk++) {
+                adultStop = adultIter[kk];
+                eggStop = eggsIter[kk];
+                tappedStop = tappedIter[kk];
+                console.log(blockIter);
+                console.log(adultStop);
+                var newCell = newRow.insertCell(jj + 9);
+                var newCell2 = newRow.insertCell(jj + 10);
+                var newCell3 = newRow.insertCell(jj + 11);
+                if(adultStop == null){
+                    adultStop = ""
                 }
-                var newData = document.createTextNode(blockIter);
+                if(eggStop == null){
+                    eggStop = ""
+                }
+                if(tappedStop == null){
+                    tappedStop = ""
+                }
+                var newData = document.createTextNode(adultStop);
                 newCell.appendChild(newData);
-            } 
-            
+                var newData2 = document.createTextNode(eggStop);
+                newCell2.appendChild(newData2);
+                var newData3 = document.createTextNode(tappedStop);
+                newCell3.appendChild(newData3);
+                jj = jj + 3;
+            }
         }
+    
         var update = $('#myTable').DataTable( {
             "createdRow": function ( row, data, index ) {
-                if ( data[4].replace(/[\$,]/g, '') * 1 > 10 ) {
+                if ( data[4].replace(/[\$,]/g, '') * 1 >= 10 ) {
                     $('td', row).eq(3).addClass('highlightRed');
                 }
-                if ( data[5].replace(/[\$,]/g, '') * 1 > 20 ) {
+                if ( data[5].replace(/[\$,]/g, '') * 1 >= 20 ) {
                     $('td', row).eq(4).addClass('highlightRed');
                 }
-                if ( data[6].replace(/[\$,]/g, '') * 1 > 5 ) {
+                if ( data[6].replace(/[\$,]/g, '') * 1 >= 5 ) {
                     $('td', row).eq(5).addClass('highlightRed');
                 }
                 if ( data[7].replace(/[\$,]/g, '') * 1 >= 50 ) {
@@ -667,6 +720,7 @@ function format ( d ) {
                 { "width": "3%", "targets": 5 },
                 { "width": "3%", "targets": 6 },
                 { "width": "3%", "targets": 7 },
+                { "width": "3%", "targets": 8 },
                 {
                     targets: [0,1,2,3,4,5,6,7,8],
                     className: 'dt-center'
@@ -714,38 +768,43 @@ function drawLineChart(){
     parent.appendChild(canvas)
    
     // Then go through the django JSON line chart query data and pull out the the selected field and element
-    var lineData = {{mites_history_json |safe}}
-    var dateList = [];
-    var valueList = [];
-    var lensIter = ''
-    var lowIter = ''
-    var highIter = ''
-    var selectedElement = lineData[0][0]
-    //alert(lineData);
-    i=0;
-    while (i < lineData.length) {
-        lensIter = lineData[i][2]
-        lowIter = lineData[i][3]
-        highIter = lineData[i][4]
-        dateList.push(lineData[i][1]);
-        perIter = (parseFloat(lowIter) + parseFloat(highIter)) / parseFloat(lensIter)
-        valueList.push(perIter);
-        i++;
-    }
+    var lineData = {{graph_json |safe}}
+    console.log(lineData)
+    var adultList = [];
+    var eggList = [];
+    var tappedList = [];
+    var adultDict = {}
     
-    i=0
-    var lineData = []
-    // Next create an array of xy pair objects, the data format that chart.js accepts for scatter charts
-    while (i < dateList.length) {
-        var newObj = {x: dateList[i], y: valueList[i]};
-        lineData.push(newObj);
+    //alert(lineData);
+    var i=0;
+    jsonLen = Object.keys(lineData).length
+    console.log(jsonLen)
+    while (i < jsonLen) {
+        var adultDict = {}
+        var eggDict = {}
+        var tappedDict = {}
+        var dateKey = String(lineData[i].date)
+        var dataDate = moment(dateKey, "YYYY/MM/DD").format('YYYY-MM-DD');
+        console.log(dataDate)
+        adultDict['x'] = dataDate
+        adultDict['y'] = lineData[i].adults.toFixed(1)
+        eggDict['x'] = dataDate
+        eggDict['y'] = (lineData[i].eggs).toFixed(1)
+        tappedDict['x'] = dataDate
+        tappedDict['y'] = lineData[i].tapped.toFixed(1)
+        adultList.push(adultDict)
+        eggList.push(eggDict)
+        tappedList.push(tappedDict)
         i++;
     }
-    //alert(lineData.toSource())
+    console.log(adultList)
+    console.log(adultDict)
+    var testData = [{x:moment().format(), y:'2'}];
+    console.log(testData)
     var ctx = document.getElementById("myChart").getContext('2d');
     if (myLineChart != null) {
-        myLinechart.data.labels = slectedElement;
-        myLinechart.data.datasets[0].data = lineData;
+        myLinechart.data.labels = 'Adult';
+        myLinechart.data.datasets[0].data = adultDict;
         myLineChart.update();
     }
     else {
@@ -753,8 +812,8 @@ function drawLineChart(){
             type: 'line',
             data: {
                 datasets: [{
-                    label: selectedElement,
-                    data: lineData,
+                    label: 'Adults',
+                    data: adultList,
                     backgroundColor: [
                         'rgba(54, 162, 235, 0.2)',
                     ],
@@ -764,8 +823,34 @@ function drawLineChart(){
                     ],
                     fill: false,
                     pointHitRadius: 20,
-
-                }]
+                },
+                {
+                    label: 'Eggs',
+                    data: eggList,
+                    backgroundColor: [
+                        'rgba(50, 188, 22, 0.2)',
+                    ],
+                    borderWidth: 3,
+                    borderColor: [
+                        'rgba(50, 188, 22, 1)'
+                    ],
+                    fill: false,
+                    pointHitRadius: 20,
+                },  
+                {
+                    label: 'Tapped',
+                    data: tappedList,
+                    backgroundColor: [
+                        'rgba(255, 60, 60, 0.2)',
+                    ],
+                    borderWidth: 3,
+                    borderColor: [
+                        'rgba(255, 60, 60, 1)'
+                    ],
+                    fill: false,
+                    pointHitRadius: 20,
+                }, 
+                ]
             },
             options: {
                 duration: 2000,
@@ -792,8 +877,8 @@ function drawLineChart(){
 </script>
 
 <script>
-function reDrawLineChart(mites_history_json){
-    console.log(mites_history_json)
+function reDrawLineChart(graph_json){
+    var lineData = JSON.parse(graph_json)
     // First tear down the old chart to avoid conflict
     var element = document.getElementById("myChart");
     var parent = element.parentNode
@@ -803,64 +888,45 @@ function reDrawLineChart(mites_history_json){
     canvas.width  = 400;
     canvas.height = 200;
     parent.appendChild(canvas)
-    // Then get selected field name and element
-    var fieldLineRadios = document.getElementsByName('lineField');
-    for (var i = 0, length = fieldLineRadios.length; i < length; i++) {
-        if (fieldLineRadios[i].checked) {
-            // do whatever you want with the checked radio
-            var selectedField = fieldLineRadios[i].value;
-            // only one radio can be logically checked, don't check the rest
-            break;
-        }
-    }
-    var lineElementRadios = document.getElementsByName('lineElement');
-    for (var i = 0, length = lineElementRadios.length; i < length; i++) {
-        if (lineElementRadios[i].checked) {
-            // do whatever you want with the checked radio
-            var selectedElement = lineElementRadios[i].value;
-            // only one radio can be logically checked, don't check the rest
-            break;
-        }
-    }
     
     // Then go through the django JSON line chart query data and pull out the the selected field and element
-    var lineDataJson = JSON.parse(mites_history_json)
-    var dateList = [];
-    var valueList = [];
-    console.log(typeof lineDataJson)
-    console.log(mites_history_json)
-    var lensIter = ''
-    var lowIter = ''
-    var highIter = ''
-    i=0;
-    var selectedField = lineDataJson[i][0]
-    console.log(lineDataJson.length)
-    while (i < lineDataJson.length) {
-        lensIter = lineDataJson[i][2];
-        lowIter = lineDataJson[i][3];
-        highIter = lineDataJson[i][4];
-        dateList.push(lineDataJson[i][1]);
-        perIter = (parseFloat(lowIter) + parseFloat(highIter)) / parseFloat(lensIter);
-        valueList.push(perIter);
-        i++;
-    }
-    console.log(dateList)
-    console.log(valueList)
-    i=0
-    var lineData = []
-    // Next create an array of xy pair objects, the data format that chart.js accepts for scatter charts
-    while (i < dateList.length) {
-        var newObj = {x: dateList[i], y: valueList[i]};
-        lineData.push(newObj);
-        i++;
-    }
     console.log(lineData)
-    //alert(lineData.toSource())
+    console.log(lineData[0])
+    var adultList = [];
+    var eggList = [];
+    var tappedList = [];
+    var adultDict = {}
+    
+    //alert(lineData);
+    var i=0;
+    jsonLen = Object.keys(lineData).length
+    console.log(jsonLen)
+    while (i < jsonLen) {
+        var adultDict = {}
+        var eggDict = {}
+        var tappedDict = {}
+        var dateKey = String(lineData[i].date)
+        var dataDate = moment(dateKey, "YYYY/MM/DD").format('YYYY-MM-DD');
+        console.log(dataDate)
+        adultDict['x'] = dataDate
+        adultDict['y'] = lineData[i].adults.toFixed(1)
+        eggDict['x'] = dataDate
+        eggDict['y'] = lineData[i].eggs.toFixed(1)
+        tappedDict['x'] = dataDate
+        tappedDict['y'] = lineData[i].tapped.toFixed(1)
+        adultList.push(adultDict)
+        eggList.push(eggDict)
+        tappedList.push(tappedDict)
+        i++;
+    }
+    console.log(adultList)
+    console.log(adultDict)
+    var testData = [{x:moment().format(), y:'2'}];
+    console.log(testData)
     var ctx = document.getElementById("myChart").getContext('2d');
     if (myLineChart != null) {
-        alert("here")
-        myLinechart.data.labels = selectedField;
-        myLinechart.data.datasets[0].data = lineData;
+        myLinechart.data.labels = 'Adult';
+        myLinechart.data.datasets[0].data = adultDict;
         myLineChart.update();
     }
     else {
@@ -868,8 +934,8 @@ function reDrawLineChart(mites_history_json){
             type: 'line',
             data: {
                 datasets: [{
-                    label: selectedField,
-                    data: lineData,
+                    label: 'Adults',
+                    data: adultList,
                     backgroundColor: [
                         'rgba(54, 162, 235, 0.2)',
                     ],
@@ -879,8 +945,34 @@ function reDrawLineChart(mites_history_json){
                     ],
                     fill: false,
                     pointHitRadius: 20,
-
-                }]
+                },
+                {
+                    label: 'Eggs',
+                    data: eggList,
+                    backgroundColor: [
+                        'rgba(50, 188, 22, 0.2)',
+                    ],
+                    borderWidth: 3,
+                    borderColor: [
+                        'rgba(50, 188, 22, 1)'
+                    ],
+                    fill: false,
+                    pointHitRadius: 20,
+                },  
+                {
+                    label: 'Tapped',
+                    data: tappedList,
+                    backgroundColor: [
+                        'rgba(255, 60, 60, 0.2)',
+                    ],
+                    borderWidth: 3,
+                    borderColor: [
+                        'rgba(255, 60, 60, 1)'
+                    ],
+                    fill: false,
+                    pointHitRadius: 20,
+                }, 
+                ]
             },
             options: {
                 duration: 2000,

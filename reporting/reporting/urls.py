@@ -4,6 +4,8 @@ from scoutapp import views
 from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
+#from django.urls import include, path
+from django.conf.urls import include, url
 
 urlpatterns = [
     url(r'^$', views.index, name='home'),
@@ -27,6 +29,7 @@ urlpatterns = [
     url(r'^labelle/leaf_check$', views.leafCheck, name='leaf_check'),
     url(r'^leaf_report$', views.leafReport, name='leaf_report'),
     url(r'^psyllid_report_web$', views.psyllidReportWeb, name='psyllid_report_web'),
+    url(r'^psyllid_report_mobile$', views.psyllidReportWeb, name='psyllid_report_mobile'),
     url(r'^manage$', views.manage,name='manage'),
     url(r'^manage_labelle/leaf_samples$', views.labelle_leaf_samples,name='leaf_samples'),
     url(r'^manage_labelle/leaf_samples_add_field$', views.labelle_leaf_samples_add_field,name='leaf_samples_add_field'),
@@ -37,3 +40,13 @@ urlpatterns = [
     url(r'^rust_mite_report$', views.rustMiteReport,name='rust_mite_report'),
     
 ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        #path('__debug__/', include(debug_toolbar.urls)),
+
+        #For django versions before 2.0:
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+
+    ] + urlpatterns
