@@ -64,6 +64,316 @@ def report(request):
 
         })
 
+@login_required
+def psyllidReportWeb(request):
+    # If request is AJAX, grab the POST variables
+    if request.is_ajax():
+        flag = request.POST.get("flag")
+        # AJAX call to update the table report
+        if flag == 'table':
+            # Get start and end date parameters
+            start_date = request.POST.get("startDate")
+            print(start_date)
+            d1 = datetime.datetime.strptime(start_date, '%m/%d/%Y')
+            start_date = datetime.date.strftime(d1, "%Y-%m-%d")
+            end_date = request.POST.get("endDate")
+            print(end_date)
+            d1 = datetime.datetime.strptime(end_date, '%m/%d/%Y')
+            end_date = datetime.date.strftime(d1, "%Y-%m-%d")
+            # Then create a dictionary of dictionaries for all (latest) data within the given date range, then send back in JSON
+            psyllid_data = {}
+            #fields_list = Field.objects.filter(age='Mature').values_list("fieldName", flat=True)
+            fields_list = LabelleData.objects.filter(Age='Mature').filter(Date__range=[start_date, end_date]).values_list("Field",     flat=True).distinct()
+            print(fields_list)
+            for field in fields_list:
+                print(field)
+                print(datetime.datetime.now())
+                rowDict = {'field_name': '', 'spray_date': '', 'scout_date': '', 'adult': '', 'eggs': '', 'tapped': '', 'flush': '', 'notes': ''}
+                keys_list = ['field_name', 'spray_date', 'scout_date', 'adult', 'eggs', 'tapped', 'flush', 'notes']
+                stops_list = ['NW', 'NE', 'C', 'SW', 'SE']
+                details_list = ['Adult', 'Eggs', 'Tapped']
+                print("Starting queries: ")
+                print(datetime.datetime.now())
+                try:
+                    latest_date = LabelleData.objects.filter(Field=field).filter(Date__range=[start_date, end_date]).values_list('Date', flat=True).latest('id')
+                    print(latest_date)
+                except:
+                    print("except")
+                    continue
+                print(datetime.datetime.now())
+                scouted_data = LabelleData.objects.filter(Field=field).filter(Date=latest_date)
+                print(datetime.datetime.now())
+                adults_list = list(scouted_data.extra({'Adult': 'CAST(Adult as UNSIGNED)'}).order_by('Stop').values_list('Adult', flat=True))
+                print(datetime.datetime.now())
+                eggs_list = list(scouted_data.extra({'Eggs': 'CAST(Eggs as UNSIGNED)'}).order_by('Stop').values_list('Eggs', flat=True))
+                print(datetime.datetime.now())
+                tapped_list = list(scouted_data.extra({'Tapped': 'CAST(Tapped as UNSIGNED)'}).order_by(
+                                    'Stop').values_list('Tapped', flat=True))
+                print(datetime.datetime.now())
+                flush_list = list(scouted_data.extra({'Flush': 'CAST(Flush as UNSIGNED)'}).order_by('Stop').values_list('Flush', flat=True))
+                print(datetime.datetime.now())
+                od_query = list(scouted_data.values_list('OD', flat=True))
+                print(datetime.datetime.now())
+                lm_query = list(scouted_data.values_list('LM', flat=True))
+                print(datetime.datetime.now())
+                sm_query = list(scouted_data.values_list('SM', flat=True))
+                print("HERE vvvv")
+                print(datetime.datetime.now())
+                rowDict['field_name'] = field
+                print(latest_date)
+                d1 = latest_date
+                rowDict['scout_date'] = d1
+                print(datetime.datetime.now())
+                rowDict['adult'] = (adults_list)
+                rowDict['eggs'] = (eggs_list)
+                rowDict['tapped'] = (tapped_list)
+                rowDict['flush'] = (flush_list)
+                # Calculating notes:
+                print("calculating notes: ")
+                print(datetime.datetime.now())
+                notes_str = ''
+                if od_query.count('O') >= 3:
+                    notes_str += 'OD '
+                if lm_query.count('O') >= 3:
+                    notes_str += 'LM '
+                if sm_query.count('O') >= 3:
+                    notes_str += 'SM '
+                rowDict['notes'] = notes_str
+                psyllid_data[field] = rowDict
+            print(psyllid_data)
+            return JsonResponse(psyllid_data, safe=False)
+        #
+        # Query most recent psyllid scouting data for the graph
+        #
+        if flag == 'graph':
+            start_date = request.POST.get("graphStartDate")
+            end_date = request.POST.get("graphEndDate")
+            graph_data = {}
+            i = 0
+            current_date = datetime.datetime.strptime(start_date, '%m/%d/%Y')
+            end_date = datetime.datetime.strptime(end_date, '%m/%d/%Y')
+            while current_date < end_date:
+                print(current_date)
+                current_cycle = {}
+                print('here')
+                current_end_date = current_date + datetime.timedelta(days=14)
+                print('here')
+                adults_query = LabelleData.objects.filter(
+                            Date__range=[current_date, current_end_date]).values_list('Adult', flat=True)
+                eggs_query = LabelleData.objects.filter(
+                            Date__range=[current_date, current_end_date]).values_list('Eggs', flat=True)
+                tapped_query = LabelleData.objects.filter(
+                            Date__range=[current_date, current_end_date]).values_list('Tapped', flat=True)
+                adults_list = []
+                for x in adults_query:
+                    try:
+                        adults_list.append(int(x))
+                    except:
+                        adults_list.append(int('0'))
+                if len(adults_list) > 0:
+                    adults_average = sum(adults_list) / float(len(adults_list) / 5)
+                    print("sum: " + str(sum(adults_list)))
+                    print("denom: " + str(float(len(adults_list) / 5)))
+                    print(len(adults_list))
+                else:
+                    adults_average = 0
+                eggs_list = []
+                for x in eggs_query:
+                    try:
+                        eggs_list.append(int(x))
+                    except:
+                        eggs_list.append(int('0'))
+                if len(eggs_list) > 0:
+                    eggs_average = sum(eggs_list) / float(len(eggs_list) / 5)
+                else:
+                    eggs_average = 0
+                tapped_list = []
+                for x in tapped_query:
+                    try:
+                        tapped_list.append(int(x))
+                    except:
+                        tapped_list.append(int('0'))
+                if len(tapped_list) > 0:
+                    tapped_average = sum(tapped_list) / float(len(tapped_list) / 5)
+                else:
+                    tapped_average = 0
+                print(adults_average)
+                print(eggs_average)
+                print(tapped_average)
+                current_cycle['adults'] = adults_average
+                current_cycle['eggs'] = eggs_average
+                current_cycle['tapped'] = tapped_average
+                current_date = current_end_date
+                date_key = datetime.datetime.strftime(current_date, '%Y/%m/%d')
+                current_cycle['date'] = date_key
+                graph_data[i] = current_cycle
+                i += 1
+            print(graph_data)
+            graph_json = json.dumps(graph_data, cls=DjangoJSONEncoder)
+            return JsonResponse(graph_json, safe=False) 
+    #
+    # Query most recent psyllid scouting data for table
+    #
+    psyllid_data = {}
+    details_data = []
+    print("START TIME: ")
+    print(datetime.datetime.now())
+    start_date = datetime.date.today() - datetime.timedelta(days=30)
+    end_date = datetime.date.today()
+    #fields_list = Field.objects.filter(age='Mature').values_list("fieldName", flat=True)
+    fields_list = LabelleData.objects.filter(Age='Mature').filter(Date__range=[start_date, end_date]).values_list(
+        "Field", flat=True).distinct()
+    #for every field, create a temporary dictionary with columns as keys and data as values
+    for field in fields_list:
+        print(field)
+        print(datetime.datetime.now())
+        rowDict = {'field_name': '', 'spray_date': '', 'scout_date': '', 'adult': '', 'eggs': '', 'tapped': '', 'flush': '', 'notes': ''}
+        keys_list = ['field_name', 'spray_date', 'scout_date', 'adult', 'eggs', 'tapped', 'flush', 'notes']
+        stops_list = ['NW', 'NE', 'C', 'SW', 'SE']
+        details_list = ['Adult', 'Eggs', 'Tapped']
+        print("Starting queries: ")
+        print(datetime.datetime.now())
+        try:
+            latest_date = LabelleData.objects.filter(Field=field).filter(Date__range=[start_date, end_date]).values_list('Date', flat=True).latest('id')
+            print(latest_date)
+        except:
+            print("except")
+            continue
+        print(datetime.datetime.now())
+        scouted_data = LabelleData.objects.filter(Field=field).filter(Date=latest_date)
+        print(datetime.datetime.now())
+        adults_list = list(scouted_data.extra({'Adult': 'CAST(Adult as UNSIGNED)'}).order_by('Stop').values_list('Adult', flat=True))
+        print(datetime.datetime.now())
+        eggs_list = list(scouted_data.extra({'Eggs': 'CAST(Eggs as UNSIGNED)'}).order_by('Stop').values_list('Eggs', flat=True))
+        print(datetime.datetime.now())
+        tapped_list = list(scouted_data.extra({'Tapped': 'CAST(Tapped as UNSIGNED)'}).order_by(
+                            'Stop').values_list('Tapped', flat=True))
+        print(datetime.datetime.now())
+        flush_list = list(scouted_data.extra({'Flush': 'CAST(Flush as UNSIGNED)'}).order_by('Stop').values_list('Flush', flat=True))
+        print(datetime.datetime.now())
+        od_query = list(scouted_data.values_list('OD', flat=True))
+        print(datetime.datetime.now())
+        lm_query = list(scouted_data.values_list('LM', flat=True))
+        print(datetime.datetime.now())
+        sm_query = list(scouted_data.values_list('SM', flat=True))
+        print("HERE vvvv")
+        print(datetime.datetime.now())
+        rowDict['field_name'] = field
+        print(latest_date)
+        d1 = latest_date
+        rowDict['scout_date'] = d1
+        print(datetime.datetime.now())
+        rowDict['adult'] = (adults_list)
+        rowDict['eggs'] = (eggs_list)
+        rowDict['tapped'] = (tapped_list)
+        rowDict['flush'] = (flush_list)
+        # Calculating notes:
+        print("calculating notes: ")
+        print(datetime.datetime.now())
+        notes_str = ''
+        if od_query.count('O') >= 3:
+            notes_str += 'OD '
+        if lm_query.count('O') >= 3:
+            notes_str += 'LM '
+        if sm_query.count('O') >= 3:
+            notes_str += 'SM '
+        rowDict['notes'] = notes_str
+        # Stop details:
+        #detail_keys = []
+        #print("below step is stops loop: ")
+        #print(datetime.datetime.now())
+        #details_query = scouted_data.values('Field', 'Stop', 'Adult', 'Eggs', 'Tapped', 'Flush')
+        #details_data.append(details_query)
+        
+        #for stop in stops_list:
+        #    for detail in details_list:
+        #        detail_keys.append(stop.lower() + '_' + detail.lower())
+        #        try:
+        #            current_detail = scouted_data.filter(Stop=stop).values_list(detail, flat=True).latest('id')
+        #            detail_key = stop.lower() + '_' + detail.lower()
+        #            rowDict[detail_key] = current_detail.encode('ascii')
+        #        except:
+        #            print('failed on ' + stop + detail)
+        print(datetime.datetime.now())
+        print(rowDict)
+        psyllid_data[field] = rowDict
+    print(psyllid_data)
+    psyllid_json = json.dumps(psyllid_data, cls=DjangoJSONEncoder)
+    #detail_keys = json.dumps(details_data, cls=DjangoJSONEncoder)
+    #
+    # Query most recent psyllid scouting data for the graph
+    #
+    #TODO: fix double counting days
+    #TODO: needs to pull field list from actual data, not master list
+    graph_data = {}
+    i = 0
+    current_date = datetime.date.today() - datetime.timedelta(days=365)
+    print("graph time: ")
+    print(datetime.datetime.now())
+    while current_date < end_date:
+        current_cycle = {}
+        current_end_date = current_date + datetime.timedelta(days=13)
+        adults_query = LabelleData.objects.filter(
+                    Date__range=[current_date, current_end_date]).values_list('Adult', flat=True)
+        eggs_query = LabelleData.objects.filter(
+                    Date__range=[current_date, current_end_date]).values_list('Eggs', flat=True)
+        tapped_query = LabelleData.objects.filter(
+                    Date__range=[current_date, current_end_date]).values_list('Tapped', flat=True)
+        adults_list = []
+        for x in adults_query:
+            try:
+                adults_list.append(int(x))
+            except:
+                adults_list.append(int('0'))
+        if len(adults_list) > 0:
+            print(len(adults_list))
+            print(float(len(adults_list)) / 5)
+            adults_average = sum(adults_list) / (float(len(adults_list)) / 5)
+        else:
+            adults_average = 0
+        eggs_list = []
+        for x in eggs_query:
+            try:
+                eggs_list.append(int(x))
+            except:
+                eggs_list.append(int('0'))
+        if len(eggs_list) > 0:
+            eggs_average = sum(eggs_list) / (float(len(eggs_list)) / 5)
+        else:
+            eggs_average = 0
+        tapped_list = []
+        for x in tapped_query:
+            try:
+                tapped_list.append(int(x))
+            except:
+                tapped_list.append(int('0'))
+        if len(tapped_list) > 0:
+            tapped_average = sum(tapped_list) / (float(len(tapped_list)) / 5)
+        else:
+            tapped_average = 0
+        current_cycle['adults'] = adults_average
+        current_cycle['eggs'] = eggs_average
+        current_cycle['tapped'] = tapped_average
+        date_key = datetime.datetime.strftime(current_end_date, '%Y/%m/%d')
+        current_cycle['date'] = date_key
+        graph_data[i] = current_cycle
+        current_date = current_end_date + datetime.timedelta(days=1)
+        i += 1
+    print(graph_data)
+    graph_json = json.dumps(graph_data, cls=DjangoJSONEncoder)
+    print(datetime.datetime.now())
+    if  request.user_agent.is_mobile:
+        print("Mobile browser detected")
+        return render(request, 'psyllid_report_mobile.html', { 
+            'psyllid_json': psyllid_json,
+            'graph_json': graph_json
+        })
+    if request.user_agent.is_pc:
+        print("PC detected")
+    return render(request, 'psyllid_report_web.html', { 
+            'psyllid_json': psyllid_json,
+            'graph_json': graph_json
+        })
 
 def index(request):
     
@@ -526,6 +836,7 @@ def labelleYoungForm(request):
         'pastFlag': pastFlag
     })
 
+@login_required
 def sprayInput(request):
     openAreas = Field.objects.order_by("area").values_list("area", flat=True).distinct()
     trialList = sprayTrials.objects.order_by("name").values_list("name", flat=True).distinct()
@@ -586,6 +897,7 @@ def sprayInput(request):
         'trialList': trialList
     })
 
+@login_required
 def sprayReport(request):
     name_list = sprayTrials.objects.order_by("name").values_list("name", flat=True)
     field_list = sprayTrials.objects.order_by("name").values_list("field", flat=True)
@@ -862,6 +1174,7 @@ def rustMites(request):
         
     })
 
+@login_required
 def rustMiteReport(request):
     # If request is AJAX, grab the POST variables
     if request.is_ajax():
@@ -878,15 +1191,15 @@ def rustMiteReport(request):
             fields_list = RustMiteFields.objects.values_list("field_name", flat=True)
             for field in fields_list:
                 print(field)
-                rowDict = {'field_name': '', 'date': '', 'lens_fields': '', 'low': '', 'high': '',  'notes': ''}
+                rowDict = {'field_name': '', 'date': '', 'lens_fields': '', 'low': '', 'high': '', 'notes': ''}
                 keys_list = ['field_name', 'date', 'lens_fields', 'low', 'high', 'notes']
                 for key in keys_list:
                     if key == 'date':
                         try:
                             d1 = RustMites.objects.filter(field_name=field).filter(
                                 date__range=[start_date, end_date]).values_list(key, flat=True).latest('id')
-                    	    d2 = str(datetime.date.strftime(d1, '%m/%d/%y'))
-                    	    rowDict[key] = d2
+                            d2 = str(datetime.date.strftime(d1, '%m/%d/%y'))
+                            rowDict[key] = d2
                         except:
                             print('date conversion fail')
                     else:
@@ -895,101 +1208,134 @@ def rustMiteReport(request):
                                 date__range=[start_date, end_date]).values_list(key, flat=True).latest('id')
                         except:
                             print("failed")
-                mites_data[field] = rowDict
+                mites_data['A' + field] = rowDict
             print(mites_data)
             return JsonResponse(mites_data, safe=False)
         else:
-            graph_field = request.POST.get("graphField")
+            graph_field_list = request.POST.getlist("graphFieldList[]")
+            print(graph_field_list)
             start_date = request.POST.get("graphStartDate")
+            print(start_date)
             d1 = datetime.datetime.strptime(start_date, '%m/%d/%Y')
             start_date = datetime.date.strftime(d1, "%Y-%m-%d")
             end_date = request.POST.get("graphEndDate")
             d1 = datetime.datetime.strptime(end_date, '%m/%d/%Y')
             end_date = datetime.date.strftime(d1, "%Y-%m-%d")
-            fields_distinct = RustMites.objects.order_by("field_name").values_list("field_name", flat=True).distinct()
-            if graph_field == "All":
-                print("all")
-                mites_history = []
-                dates_distinct = RustMites.objects.order_by("date").filter(
-                                    date__range=[start_date, end_date]).values_list("date", flat=True).distinct()
-                week_num_list = []
-                for date in dates_distinct:
-                    week_num_list.append(date.isocalendar()[1])
-                week_nums_distinct = list(set(week_num_list))
-                i = 0
-                # Nust order week_nums_distinct by ascending date
-                week_nums_distinct.sort()
-                for week in week_nums_distinct:
-                    current_lows = []
-                    current_highs = []
-                    current_lens = []
-                    totals_dict = []
-                    print(week)
-                    print(week_nums_distinct)
-                    print(week_num_list)
-                    indices = [j for j, x in enumerate(week_num_list) if x == week]
-                    print(indices)
-                    for num in indices:
-                        print(num)
-                        print(dates_distinct[num])
-                        for field in fields_distinct:
-                            print(field)
-                            current_lows.append(list(RustMites.objects.order_by("date").filter(date=dates_distinct[num]).filter(
-                                    field_name=field).values_list("low", flat=True).distinct()))
-                            current_highs.append(list(RustMites.objects.order_by("date").filter(date=dates_distinct[num]).filter(
-                                    field_name=field).values_list("high", flat=True).distinct()))
-                            current_lens.append(list(RustMites.objects.order_by("date").filter(date=dates_distinct[num]).filter(
-                                    field_name=field).values_list("lens_fields", flat=True).distinct()))
-                    # Calculate the total percentage of infested per lense field in this week and add to data list
-                    ii = 0
-                    flat_lows = []
-                    while ii < len(current_lows):
-                        jj = 0
-                        while jj < len(current_lows[ii]):
-                            print(current_lows[ii][jj])
-                            flat_lows.append(current_lows[ii][jj])
-                            jj = jj+1
-                        ii= ii + 1
-                    ii = 0
-                    flat_highs = []
-                    while ii < len(current_highs):
-                        jj = 0
-                        while jj < len(current_highs[ii]):
-                            print(current_highs[ii][jj])
-                            flat_highs.append(current_highs[ii][jj])
-                            jj = jj+1
-                        ii= ii + 1
-                    ii = 0
-                    flat_lens = []
-                    while ii < len(current_lens):
-                        jj = 0
-                        while jj < len(current_lens[ii]):
-                            print(current_lens[ii][jj])
-                            flat_lens.append(current_lens[ii][jj])
-                            jj = jj+1
-                        ii= ii + 1
-                    
-                    print(flat_lows)
-                    flat_lows = map(int, flat_lows)
-                    flat_highs = map(int, flat_highs)
-                    flat_lens = map(int, flat_lens)
-                    print("here")
-                    week_lows = sum(flat_lows)
-                    week_highs = sum(flat_highs)
-                    week_lens = sum(flat_lens)
-                    week_percentage = float((week_lows + week_highs) / week_lens)
-                    print(week_percentage)
-                    week_date = dates_distinct[indices[0]]
-                    week_list = ['All', week_date, week_lens, week_lows, week_highs]
-                    mites_history.append(week_list)
+            mites_history = {}
+            for field in graph_field_list:
+                print(field)
+                fields_distinct = RustMites.objects.order_by("field_name").values_list("field_name", flat=True).distinct()
+                if field == "All":
+                    print("all")
+                    field_data = {}
+                    dates_distinct = RustMites.objects.order_by("date").filter(
+                                        date__range=[start_date, end_date]).values_list("date", flat=True).distinct()
+                    week_num_list = []
+                    for date in dates_distinct:
+                        week_num_list.append(date.isocalendar()[1])
+                    week_nums_distinct = list(set(week_num_list))
+                    i = 0
+                    # Must order week_nums_distinct by ascending date
+                    week_nums_distinct.sort()
+                    field_data["field"] = 'All'
+                    field_data["dates"] = []
+                    field_data["lows"] = []
+                    field_data["highs"] = []
+                    field_data["lens"] = []
+                    for week in week_nums_distinct:
+                        current_lows = []
+                        current_highs = []
+                        current_lens = []
+                        totals_dict = []
+                        print(week)
+                        print(week_nums_distinct)
+                        print(week_num_list)
+                        indices = [j for j, x in enumerate(week_num_list) if x == week]
+                        print(indices)
+                        for num in indices:
+                            print(num)
+                            print(dates_distinct[num])
+                            for field in fields_distinct:
+                                print(field)
+                                current_lows.append(list(RustMites.objects.order_by("date").filter(date=dates_distinct[num]).filter(
+                                        field_name=field).values_list("low", flat=True).distinct()))
+                                current_highs.append(list(RustMites.objects.order_by("date").filter(date=dates_distinct[num]).filter(
+                                        field_name=field).values_list("high", flat=True).distinct()))
+                                current_lens.append(list(RustMites.objects.order_by("date").filter(date=dates_distinct[num]).filter(
+                                        field_name=field).values_list("lens_fields", flat=True).distinct()))
+                        # Calculate the total percentage of infested per lense field in this week and add to data list
+                        ii = 0
+                        flat_lows = []
+                        while ii < len(current_lows):
+                            jj = 0
+                            while jj < len(current_lows[ii]):
+                                print(current_lows[ii][jj])
+                                flat_lows.append(current_lows[ii][jj])
+                                jj = jj+1
+                            ii= ii + 1
+                        ii = 0
+                        flat_highs = []
+                        while ii < len(current_highs):
+                            jj = 0
+                            while jj < len(current_highs[ii]):
+                                print(current_highs[ii][jj])
+                                flat_highs.append(current_highs[ii][jj])
+                                jj = jj+1
+                            ii= ii + 1
+                        ii = 0
+                        flat_lens = []
+                        while ii < len(current_lens):
+                            jj = 0
+                            while jj < len(current_lens[ii]):
+                                print(current_lens[ii][jj])
+                                flat_lens.append(current_lens[ii][jj])
+                                jj = jj+1
+                            ii= ii + 1
+
+                        print(flat_lows)
+                        flat_lows = map(int, flat_lows)
+                        flat_highs = map(int, flat_highs)
+                        flat_lens = map(int, flat_lens)
+                        print("here")
+                        week_lows = sum(flat_lows)
+                        week_highs = sum(flat_highs)
+                        week_lens = sum(flat_lens)
+                        week_percentage = float((week_lows + week_highs) / week_lens)
+                        print(week_percentage)
+                        week_date = dates_distinct[indices[0]]
+                        week_list = ['All', week_date, week_lens, week_lows, week_highs]
+                        field_data["dates"].append(week_date)
+                        field_data["lows"].append(week_lows)
+                        field_data["highs"].append(week_highs)
+                        field_data["lens"].append(week_lens)
+                    mites_history['All'] = (field_data)
                     print(mites_history)
-                
-            else:
-                mites_history = RustMites.objects.order_by("date").filter(field_name=graph_field).filter(
-                                date__range=[start_date, end_date]).values_list(
-                                "field_name", "date", "lens_fields", "low", "high").distinct()
-            mites_history_json = json.dumps(list(mites_history), cls=DjangoJSONEncoder)
-            print(mites_history)
+
+                else:
+                    field_data = {}
+                    dates_distinct = list(RustMites.objects.filter(date__range=[start_date, end_date]).filter(
+                                field_name=field).order_by("date").values_list("date", flat=True).distinct())
+                    week_num_list = []
+                    for date in dates_distinct:
+                        week_num_list.append(date.isocalendar()[1])
+                    week_nums_distinct = list(set(week_num_list))
+                    lows_list = list(RustMites.objects.filter(date__range=[start_date, end_date]).filter(
+                                field_name=field).order_by("date").values_list("low", flat=True))
+                    highs_list = list(RustMites.objects.filter(date__range=[start_date, end_date]).filter(
+                                field_name=field).order_by("date").values_list("high", flat=True))
+                    lens_list = list(RustMites.objects.filter(date__range=[start_date, end_date]).filter(
+                                field_name=field).order_by("date").values_list("lens_fields", flat=True))
+                    field_data["field"] = field
+                    field_data["dates"] = dates_distinct
+                    field_data["lows"] = lows_list
+                    field_data["highs"] = highs_list
+                    field_data["lens"] = lens_list
+                    mites_history[field] = (field_data)
+            print(mites_history) 
+            print(type(mites_history))
+            mites_history_json = json.dumps(mites_history, cls=DjangoJSONEncoder)
+            print(mites_history_json)
+            print(type(mites_history_json))
             return JsonResponse(mites_history_json, safe=False)
             
     #
@@ -1015,8 +1361,9 @@ def rustMiteReport(request):
                     rowDict[key] = RustMites.objects.filter(field_name=field).values_list(key, flat=True).latest('id')
                 except:
                     print("failed")
+
         # Add each temporary dictionary to a master dictionary of dictionaries, and then convert to JSON to pass to template
-        mites_data[field] = rowDict
+        mites_data['A' + field] = rowDict
     print(mites_data)
     mites_json = json.dumps(mites_data, cls=DjangoJSONEncoder)
     
@@ -1037,7 +1384,12 @@ def rustMiteReport(request):
             "mites_history_json": mites_history_json,
             "fields_distinct": fields_distinct
             })
+    
 
+
+
+
+@login_required
 def leafInput(request):
     leafFormSet = modelformset_factory(leafSamples, fields=('id', 'field_name', 'guess'), extra=0)
     if request.method == "POST":
@@ -1058,7 +1410,7 @@ def leafInput(request):
         'form': form,
     })
 
-
+@login_required
 def leafCheck(request):
     form = leafForm(request.POST, request.FILES)
     if form.is_valid():
@@ -1159,6 +1511,7 @@ def leafCheck(request):
         'formset': formset,
     })  
 
+@login_required
 def leafReport(request):
     if request.is_ajax():
         flag = str(request.POST.get('flag'))
@@ -1233,7 +1586,7 @@ def leafReport(request):
         if flag == 'content':
             bar_selected_field = str(request.POST.get('barSelectedField'))
             bar_date = str(request.POST.get('barDate'))
-            bar_date = datetime.datetime.strptime(bar_date, '%B %Y').strftime('%Y-%m-%d')
+            bar_date = datetime.datetime.strptime(bar_date, '%m/%Y').strftime('%Y-%m-%d')
             time_delta = datetime.timedelta(days=30)
             bar_date_end = datetime.datetime.strptime(bar_date, '%Y-%m-%d') + time_delta
             print(bar_date)
@@ -1250,7 +1603,7 @@ def leafReport(request):
         if flag == 'sufficiency':
             suff_selected_field = str(request.POST.get('suffSelectedField'))
             suff_date = str(request.POST.get('suffDate'))
-            suff_date = datetime.datetime.strptime(suff_date, '%B %Y').strftime('%Y-%m-%d')
+            suff_date = datetime.datetime.strptime(suff_date, '%m/%Y').strftime('%Y-%m-%d')
             time_delta = datetime.timedelta(days=30)
             suff_date_end = datetime.datetime.strptime(suff_date, '%Y-%m-%d') + time_delta
             print(suff_selected_field)
@@ -1299,7 +1652,7 @@ def leafReport(request):
         if flag == 'comparison':
             selected_fields = request.POST.getlist('comFieldList[]')
             com_date = (request.POST.get('comDate'))
-            com_date = datetime.datetime.strptime(com_date, '%B %Y').strftime('%Y-%m-%d')
+            com_date = datetime.datetime.strptime(com_date, '%m/%Y').strftime('%Y-%m-%d')
             time_delta = datetime.timedelta(days=30)
             com_date_end = datetime.datetime.strptime(com_date, '%Y-%m-%d') + time_delta
             comparison_data = {}
@@ -1357,7 +1710,7 @@ def leafReport(request):
          
     # First query the leaf sample data for the default graphs: all data from most recent sample for the DRIS 
     # and bar graph, and the last year of nitrogen data for the line graph
-    fields_distinct = leafSamples.objects.values_list("field_name", flat=True).distinct()
+    fields_distinct = leafSamples.objects.order_by("field_name").values_list("field_name", flat=True).distinct()
     recent_data = leafSamples.objects.filter(field_name=str(fields_distinct[0])).latest('id')
     today = datetime.date.today()
     today_str = datetime.datetime.strptime(str(today), "%Y-%m-%d")
@@ -1412,6 +1765,29 @@ def leafReport(request):
     form_class = leafForm
     form = form_class
     
+    # A dictionary for which months/years contain leaf sample data points for each field
+    sampledMonths = {}
+    for field in fields_distinct:
+        dates_list = list(leafSamples.objects.filter(field_name=field).order_by("date").values_list("date", flat=True).distinct())
+        print(dates_list)
+        print(dates_list[0])
+        print(dates_list[-1])
+        dates_dict = {}
+        for date in dates_list:
+            date_year = date.year
+            if date_year in dates_dict:
+                if date.month in dates_dict[date_year]:
+                    pass
+                else:
+                    dates_dict[date_year].append(date.month)
+            else:
+                dates_dict[date_year] = []
+                dates_dict[date_year].append(date.month)
+        print dates_dict
+        sampledMonths[field] = dates_dict
+    print sampledMonths
+    months_json = json.dumps(sampledMonths, cls=DjangoJSONEncoder)
+
     return render(request, 'leaf_report.html', { 
         'form': form,
         'fields_distinct': fields_distinct,
@@ -1419,6 +1795,7 @@ def leafReport(request):
         'recent_data': recent_data,
         'recent_data_json': recent_data_json,
         'element_year_json': element_year_json,
-        'sufficiency_dict': sufficiency_dict
+        'sufficiency_dict': sufficiency_dict,
+	'months_json': months_json
     })
     
